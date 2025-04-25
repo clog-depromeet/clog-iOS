@@ -8,7 +8,7 @@ import ProjectDescriptionHelpers
     let packageSettings = PackageSettings(
         productTypes: [
             "ComposableArchitecture": .framework,
-            "Alamofire": .framework,
+            "Moya": .framework,
             "Then": .framework,
             "Pulse": .framework,
             "KakaoOpenSDK": .framework,
@@ -23,7 +23,7 @@ let package = Package(
     platforms: [.iOS(.v16)],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", exact: "1.17.1"),
-        .package(url: "https://github.com/Alamofire/Alamofire.git", "5.9.1"..."6.0.0"),
+        .package(url: "https://github.com/Moya/Moya.git", exact: "15.0.3"),
         .package(url: "https://github.com/devxoul/Then.git", exact: "3.0.0"),
         .package(url: "https://github.com/kean/Pulse.git", exact: "5.1.2"),
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", exact: "1.17.1"),
