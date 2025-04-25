@@ -48,7 +48,7 @@ public extension MoyaProvider {
 
 public extension MoyaProvider {
     /// 반환 타입이 있는 요청
-    private func request<T: Decodable>(_ target: Target) async throws -> T {
+    func request<T: Decodable>(_ target: Target) async throws -> T {
         return try await withCheckedThrowingContinuation { continuation in
             self.request(target) { result in
                 switch result {
@@ -74,7 +74,7 @@ public extension MoyaProvider {
     }
     
     /// 반환 타입이 없는 요청
-    private func request(_ target: Target) async throws {
+    func request(_ target: Target) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             self.request(target) { result in
                 switch result {
