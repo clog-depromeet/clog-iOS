@@ -9,6 +9,7 @@ import ProjectDescription
 
 public extension TargetDependency {
     struct Domains {
+        public struct Token {}
         public struct Edit {}
         public struct Report {}
         public struct Story {}
@@ -95,6 +96,15 @@ public extension TargetDependency.Domains.Report {
 
 public extension TargetDependency.Domains.Edit {
     static let name = "Edit"
+    
+    static let domain = TargetDependency.Domains.project(
+        name: "\(name)Domain",
+        service: .clog
+    )
+}
+
+public extension TargetDependency.Domains.Token {
+    static let name = "Token"
     
     static let domain = TargetDependency.Domains.project(
         name: "\(name)Domain",

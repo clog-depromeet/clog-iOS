@@ -36,7 +36,7 @@ public extension TargetDependency.Domains.$NAME {
     
     static let domain = TargetDependency.Domains.project(
         name: "\(name)Domain",
-        service: .cllog
+        service: .clog
     )
 }
 EOF
