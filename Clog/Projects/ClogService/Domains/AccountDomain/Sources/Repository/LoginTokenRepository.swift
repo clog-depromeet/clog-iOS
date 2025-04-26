@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol TokenRepository {
+public protocol LoginTokenRepository {
     func fetchLoginType() -> LoginType
     func getRefreshToken() -> String?
     func clearToken() async

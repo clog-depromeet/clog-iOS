@@ -101,7 +101,7 @@ public struct ClogServiceAssembly: Assembly {
         
         container.register(LoginTypeFetcherUseCase.self) { _ in
             LoginTypeFetcher(
-                repository: DefaultTokenRepository(
+                repository: DefaultLoginTokenRepository(
                     dataSource: DefaultTokenDataSource()
                 )
             )
@@ -109,7 +109,7 @@ public struct ClogServiceAssembly: Assembly {
         
         container.register(ValidateUserSessionUseCase.self) { _ in
             ValidateUserSession(
-                repository: DefaultTokenRepository(
+                repository: DefaultLoginTokenRepository(
                     dataSource: DefaultTokenDataSource()
                 )
             )

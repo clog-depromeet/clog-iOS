@@ -38,13 +38,13 @@ struct TokenAuthenticationCredential: AuthenticationCredential {
         guard let token = token else {
             return true
         }
-        return isExpired(token.refreshToken)
+        return isExpired(token.accessToken)
     }
 }
 
 extension TokenAuthenticationCredential {
-    private func isExpired(_ refreshToken: String) -> Bool {
-        let segments = refreshToken.components(separatedBy: ".")
+    private func isExpired(_ token: String) -> Bool {
+        let segments = token.components(separatedBy: ".")
         guard let expired = decodeJWTPart(segments[1]) else { return true }
         let expiredDate = Date(timeIntervalSince1970: Double(expired)).addingTimeInterval(-20)
         return expiredDate < Date()

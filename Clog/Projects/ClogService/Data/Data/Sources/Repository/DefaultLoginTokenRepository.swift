@@ -1,5 +1,5 @@
 //
-//  DefaultTokenRepository.swift
+//  DefaultLoginTokenRepository.swift
 //  Data
 //
 //  Created by Junyoung on 3/19/25.
@@ -10,7 +10,7 @@ import Foundation
 import AccountDomain
 import Networker
 
-public struct DefaultTokenRepository: TokenRepository {
+public struct DefaultLoginTokenRepository: LoginTokenRepository {
     let dataSource: TokenDataSource
     
     public init(dataSource: TokenDataSource) {

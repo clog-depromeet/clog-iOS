@@ -25,11 +25,11 @@ public protocol LoginTypeFetcherUseCase {
 }
 
 public struct LoginTypeFetcher: LoginTypeFetcherUseCase {
-    public init(repository: TokenRepository) {
+    public init(repository: LoginTokenRepository) {
         self.repository = repository
     }
     
-    private let repository: TokenRepository
+    private let repository: LoginTokenRepository
     
     public func fetch() -> LoginType {
         repository.fetchLoginType()
