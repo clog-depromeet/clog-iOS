@@ -7,8 +7,9 @@
 //
 
 import Foundation
+
 import Networker
-import Starlink
+import Moya
 
 public protocol UserDataSource {
     func leave(_ request: AppleWithdrawCodeRequestDTO?) async throws
@@ -18,10 +19,10 @@ public protocol UserDataSource {
 }
 
 public final class DefaultUserDataSource: UserDataSource {
-    private let provider: Provider
+    private let provider: MoyaProvider<UserTarget>
     
-    public init(provider: Provider) {
-        self.provider = provider
+    public init() {
+        self.provider = MoyaProvider<UserTarget>.authorized()
     }
     
     public func leave(_ request: AppleWithdrawCodeRequestDTO?) async throws {
@@ -42,7 +43,7 @@ public final class DefaultUserDataSource: UserDataSource {
         )
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
             
         }
         
@@ -63,9 +64,9 @@ enum UserTarget {
     case name(UserNameRequestDTO)
 }
 
-extension UserTarget: EndpointType {
-    var baseURL: String {
-        return Environment.baseURL + "/api/v1/users"
+extension UserTarget: TargetType {
+    var baseURL: URL {
+        return URL(string: Environment.baseURL + "/api/v1/users")!
     }
     
     var path: String {
@@ -77,7 +78,7 @@ extension UserTarget: EndpointType {
         }
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .leave: .delete
         case .logout: .post
@@ -86,30 +87,18 @@ extension UserTarget: EndpointType {
         }
     }
     
-    var parameters: Networker.ParameterType? {
+    var task: Task {
         switch self {
-        case .logout, .me:
-            return .none
         case .leave(let request):
             if let request {
-                return .encodable(request)
+                return .requestJSONEncodable(request)
             } else {
-                return .none
+                return .requestPlain
             }
+        case .logout, .me:
+            return .requestPlain
         case .name(let request):
-            return .encodable(request)
+            return .requestJSONEncodable(request)
         }
-    }
-    
-    var encodable: Encodable? {
-        nil
-    }
-    
-    var encoding: any StarlinkEncodable {
-        Starlink.StarlinkJSONEncoding()
-    }
-    
-    var headers: [Starlink.Header]? {
-        nil
     }
 }

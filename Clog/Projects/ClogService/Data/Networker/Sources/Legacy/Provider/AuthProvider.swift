@@ -11,11 +11,11 @@ import Pulse
 
 // 로그인 후 토큰이 필요한 요청을 처리하는 Provider
 public final class AuthProvider: Provider, Sendable {
-    private let tokenInterceptor: TokenInterceptor
-    
-    public init(tokenProvider: @escaping @Sendable () -> TokenDTO?) {
-        self.tokenInterceptor = TokenInterceptor(provider: tokenProvider)
-    }
+//    private let tokenInterceptor: TokenInterceptor
+//    
+//    public init(tokenProvider: @escaping @Sendable () -> TokenDTO?) {
+//        self.tokenInterceptor = TokenInterceptor(provider: tokenProvider)
+//    }
     
     public func request<T: Decodable>(_ endpoint: EndpointType) async throws -> T {
         let url = endpoint.baseURL + endpoint.path
@@ -31,7 +31,7 @@ public final class AuthProvider: Provider, Sendable {
                 session: session,
                 interceptors: [
                     AppInfoInterceptor(),
-                    tokenInterceptor
+//                    tokenInterceptor
                 ]
             )
             
@@ -45,7 +45,7 @@ public final class AuthProvider: Provider, Sendable {
                     parameters: parameters,
                     interceptors: [
                         AppInfoInterceptor(),
-                        tokenInterceptor
+//                        tokenInterceptor
                     ]
                 )
             case .encodable(let parameters):
@@ -56,7 +56,7 @@ public final class AuthProvider: Provider, Sendable {
                     parameters: parameters,
                     interceptors: [
                         AppInfoInterceptor(),
-                        tokenInterceptor
+//                        tokenInterceptor
                     ]
                 )
             }

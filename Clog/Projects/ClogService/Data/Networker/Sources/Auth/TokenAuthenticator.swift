@@ -9,6 +9,8 @@ import Foundation
 
 import Alamofire
 
+import TokenDomain
+
 final class TokenAuthenticator: Authenticator {
     typealias Credential = TokenAuthenticationCredential
     
@@ -61,7 +63,7 @@ final class TokenAuthenticator: Authenticator {
             do {
                 // refresh 토큰을 사용해서 Access 재발급
                 // 임시 코드
-                let token = TokenDTO(accessToken: "", refreshToken: "", provider: "")
+                let token = AuthToken(accessToken: "", refreshToken: "")
                 
                 let credential = Credential(token)
                 

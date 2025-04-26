@@ -11,19 +11,24 @@ import AccountDomain
 import Networker
 
 public struct DefaultTokenRepository: TokenRepository {
-    public init() {}
+    let dataSource: TokenDataSource
+    
+    public init(dataSource: TokenDataSource) {
+        self.dataSource = dataSource
+    }
+    
     public func fetchLoginType() -> LoginType {
-        guard let provider = DefaultTokenDataSource().loadToken()?.provider else {
+        guard let provider = dataSource.loadProvider() else {
             return .apple
         }
         return LoginType.init(provider)
     }
     
     public func getRefreshToken() -> String? {
-        return DefaultTokenDataSource().loadToken()?.refreshToken
+        return dataSource.loadToken()?.refreshToken
     }
 
     public func clearToken() async {
-        DefaultTokenDataSource().clearToken()
+        dataSource.clearToken()
     }
 }

@@ -10,11 +10,13 @@ import Foundation
 
 import Alamofire
 
+import TokenDomain
+
 struct TokenAuthenticationCredential: AuthenticationCredential {
     
-    private let token: TokenDTO?
+    private let token: AuthToken?
     
-    init(_ token: TokenDTO?) {
+    init(_ token: AuthToken?) {
         self.token = token
     }
     

@@ -19,18 +19,25 @@ public protocol AuthDataSource {
 }
 
 public struct DefaultAuthDataSource: AuthDataSource {
+    private typealias AuthTokenResponseType = BaseResponseDTO<AuthTokenDTO>
+    
     private let authorizedProvider: MoyaProvider<LoginTarget>
     private let plainProvider: MoyaProvider<LoginTarget>
 
     public init() {
-        let token = TokenDTO(accessToken: "", refreshToken: "", provider: "")
-        self.authorizedProvider = MoyaProvider<LoginTarget>.authorized(token)
+        self.authorizedProvider = MoyaProvider<LoginTarget>.authorized()
         self.plainProvider = MoyaProvider<LoginTarget>.plain()
     }
     
     public func kakaoLogin(idToken: String) async throws-> AuthTokenDTO {
         let request = KakaoLoginReqeustDTO(idToken: idToken)
-        return try await plainProvider.request(.kakaoLogin(request))
+        let response: AuthTokenResponseType = try await plainProvider.request(.kakaoLogin(request))
+        
+        guard let data = response.data else {
+            throw NetworkError.decoding
+        }
+        
+        return data
     }
     
     public func appleLogin(
@@ -38,12 +45,23 @@ public struct DefaultAuthDataSource: AuthDataSource {
         codeVerifier: String
     ) async throws -> AuthTokenDTO {
         let request = AppleLoginRequestDTO(code: code, codeVerifier: codeVerifier)
-        return try await plainProvider.request(.appleLogin(request))
+        let response: AuthTokenResponseType = try await plainProvider.request(.appleLogin(request))
+        
+        guard let data = response.data else {
+            throw NetworkError.decoding
+        }
+        
+        return data
     }
 
     public func refresh(refreshToken: String) async throws -> AuthTokenDTO {
         let request = RefreshReqeustDTO(refreshToken: refreshToken)
-        return try await authorizedProvider.request(.refresh(request))
+        let response: AuthTokenResponseType = try await authorizedProvider.request(.refresh(request))
+        
+        guard let data = response.data else {
+            throw NetworkError.decoding
+        }
+        return data
     }
 }
 

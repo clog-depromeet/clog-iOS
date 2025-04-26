@@ -8,17 +8,20 @@
 
 import Foundation
 import Networker
+import TokenDomain
 
 public protocol TokenDataSource {
-    func saveToken(_ token: AuthTokenDTO)
-    func loadToken() -> TokenDTO?
+    func saveToken(_ token: AuthToken)
+    func saveProvider(_ provider: String)
+    func loadToken() -> AuthToken?
+    func loadProvider() -> String?
     func clearToken()
 }
 
 public struct DefaultTokenDataSource: TokenDataSource {
     public init () {}
     
-    public func saveToken(_ token: AuthTokenDTO) {
+    public func saveToken(_ token: AuthToken) {
         try? KeychainManager.shared.deleteItem(
             ofClass: AppData.LoginUserKeychainKey.token.itemClass,
             key: AppData.LoginUserKeychainKey.token.rawValue
@@ -27,8 +30,16 @@ public struct DefaultTokenDataSource: TokenDataSource {
         AppData.token = token
     }
     
-    @Sendable public func loadToken() -> TokenDTO? {
-        AppData.token?.toToken()
+    public func saveProvider(_ provider: String) {
+        AppData.provider = provider
+    }
+    
+    @Sendable public func loadToken() -> AuthToken? {
+        AppData.token
+    }
+    
+    @Sendable public func loadProvider() -> String? {
+        AppData.provider
     }
     
     public func clearToken() {

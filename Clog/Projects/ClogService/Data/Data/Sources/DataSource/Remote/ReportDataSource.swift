@@ -6,8 +6,10 @@
 //  Copyright © 2025 Supershy. All rights reserved.
 //
 
-import Starlink
+import Foundation
+
 import Networker
+import Moya
 
 public protocol ReportDataSource {
     func report() async throws -> ReportResponseDTO
@@ -15,10 +17,10 @@ public protocol ReportDataSource {
 
 public struct DefaultReportDataSource: ReportDataSource {
     
-    private let provider: Provider
+    private let provider: MoyaProvider<ReportTarget>
     
-    public init(with provider: Provider) {
-        self.provider = provider
+    public init() {
+        self.provider = MoyaProvider<ReportTarget>.authorized()
     }
     
     public func report() async throws -> ReportResponseDTO {
@@ -27,7 +29,7 @@ public struct DefaultReportDataSource: ReportDataSource {
         )
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
             
         }
         
@@ -39,44 +41,23 @@ enum ReportTarget {
     case report
 }
 
-extension ReportTarget: EndpointType {
-    var baseURL: String {
-        return Environment.baseURL + "/api/v1/reports"
+extension ReportTarget: TargetType {
+    var baseURL: URL {
+        return URL(string: Environment.baseURL + "/api/v1/reports")!
     }
     
     var path: String {
         return ""
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .report:
             return .get
         }
     }
     
-    var parameters: ParameterType? {
-        switch self {
-        case .report:
-            return .none
-        }
-    }
-    
-    var encodable: Encodable? {
-        switch self {
-        case .report:
-            return .none
-        }
-    }
-    
-    var headers: [Starlink.Header]? {
-        nil
-    }
-    
-    var encoding: StarlinkEncodable {
-        switch self {
-        case .report:
-            return Starlink.StarlinkURLEncoding()
-        }
+    var task: Task {
+        return .requestPlain
     }
 }

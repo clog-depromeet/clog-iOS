@@ -8,6 +8,6 @@
 
 import Foundation
 
-struct Headers {
+public struct Headers {
     public static let contentJson = ["Content-Type": "application/json"]
 }

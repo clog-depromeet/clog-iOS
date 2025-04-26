@@ -14,12 +14,12 @@ import Moya
 public extension MoyaProvider {
     /// 인증이 필요한 요청을 위한 Provider입니다.
     /// 내부적으로 Token 기반 인증 흐름(AuthenticationInterceptor 등)이 적용됩니다.
-    static func authorized<T: TargetType>(_ token: TokenDTO?) -> MoyaProvider<T> {
+    static func authorized<T: TargetType>() -> MoyaProvider<T> {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 10 // 요청에 대한 타임아웃 10초
         configuration.timeoutIntervalForResource = 10 // 리소스에 대한 타임아웃 10초
         
-        let tokenCredential = TokenAuthenticationCredential(token)
+        let tokenCredential = TokenAuthenticationCredential(nil)
         let authenticatorInterceptor = AuthenticationInterceptor(
             authenticator: TokenAuthenticator(),
             credential: tokenCredential

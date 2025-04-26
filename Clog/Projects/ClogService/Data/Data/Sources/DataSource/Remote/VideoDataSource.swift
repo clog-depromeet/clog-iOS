@@ -8,9 +8,9 @@
 
 import Foundation
 
-import Starlink
+@preconcurrency import Moya
+
 import Networker
-import Alamofire
 import VideoDomain
 
 public protocol VideoDataSourceLogic: Sendable {
@@ -21,87 +21,73 @@ public protocol VideoDataSourceLogic: Sendable {
 
 public struct VideoDataSource: VideoDataSourceLogic {
     
-    private let authProvider: AuthProvider
+    private let provider: MoyaProvider<VideoTarget>
     
-    public init(authProvider: AuthProvider) {
-        self.authProvider = authProvider
+    public init() {
+        self.provider = MoyaProvider<VideoTarget>.authorized()
     }
     
     public func authenticate(
         _ request: ThumbnailPreSignedUploadRequestDTO
     ) async throws -> VideoThumbnailUploadResponseDTO {
-        let response: BaseResponseDTO<VideoThumbnailUploadResponseDTO> = try await authProvider.request(VideoEndPoint.authenticate(request))
+        let response: BaseResponseDTO<VideoThumbnailUploadResponseDTO> = try await provider.request(VideoTarget.authenticate(request))
 
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
         }
         
         return data
     }
     
     public func thumbnailUpload(preSignedURL: String, data: Data) async throws {
-        do {
-            _ = try await AF.upload(
-                data,
-                to: preSignedURL,
-                method: .put,
-                headers: .init([HTTPHeader(name: "Content-Type", value: "image/png")])
-            )
-            .validate(statusCode: 200 ..< 300)
-            .serializingDecodable(Empty.self, emptyResponseCodes: Set(200 ..< 300))
-            .value
-        } catch {
-            print("failure : \(error)")
-            throw VideoError.uploadFailed
-        }
+        let _: BaseResponseDTO<EmptyResponseDTO> = try await provider.request(VideoTarget.upload(preSignedURL: preSignedURL, data: data))
     }
 }
 
-public enum VideoEndPoint: EndpointType {
+enum VideoTarget {
     case authenticate(ThumbnailPreSignedUploadRequestDTO)
+    case upload(preSignedURL: String, data: Data)
+}
+
+extension VideoTarget: TargetType {
     
-    public var baseURL: String {
-        return Environment.baseURL
+    var baseURL: URL {
+        return URL(string: Environment.baseURL + "/api/v1/thumbnails")!
     }
-    public var path: String {
+    
+    var path: String {
         switch self {
         case .authenticate:
-            return "/api/v1/thumbnails/upload-url"
+            return "/upload-url"
+        case .upload(let url, _):
+            return url
         }
     }
     
-    public var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .authenticate:
             return .post
+        case .upload:
+            return .put
         }
     }
     
-    public var parameters: ParameterType? {
+    var task: Task {
         switch self {
         case .authenticate(let request):
-            return .encodable(request)
-        }
-    }
-    public var encodable: (any Encodable)? {
-        switch self {
-        case .authenticate:
-            return nil
-        }
-    }
-    public var headers: [Starlink.Header]? {
-        switch self {
-        case .authenticate:
-            return nil
+            return .requestJSONEncodable(request)
+        case .upload(_, let data):
+            return .requestData(data)
         }
     }
     
-    public var encoding: StarlinkEncodable {
+    var headers: [String : String]? {
         switch self {
+        case .upload:
+            return ["Content-Type": "image/png"]
         case .authenticate:
-            return Starlink.StarlinkJSONEncoding()
+            return Headers.contentJson
         }
     }
 }
-
-struct EmptyModel: Encodable {}

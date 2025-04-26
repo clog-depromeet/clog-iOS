@@ -17,11 +17,11 @@ import Pulse
 
 public final class UploadProvider: UploadProviderable, Sendable {
     
-    private let tokenInterceptor: TokenInterceptor
+//    private let tokenInterceptor: TokenInterceptor
     
-    public init(tokenProvider: @escaping @Sendable () -> TokenDTO?) {
-        self.tokenInterceptor = TokenInterceptor(provider: tokenProvider)
-    }
+//    public init(tokenProvider: @escaping @Sendable () -> TokenDTO?) {
+//        self.tokenInterceptor = TokenInterceptor(provider: tokenProvider)
+//    }
     
     public func uploadRequest<T: Decodable>(
         _ endpoint: EndpointType,
@@ -48,7 +48,7 @@ public final class UploadProvider: UploadProviderable, Sendable {
                     parameters: parameters,
                     interceptors: [
                         AppInfoInterceptor(),
-                        tokenInterceptor
+//                        tokenInterceptor
                     ]
                 )
             }
