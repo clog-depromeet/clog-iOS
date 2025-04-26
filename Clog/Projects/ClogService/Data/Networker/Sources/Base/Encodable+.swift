@@ -26,7 +26,7 @@ public extension Encodable {
     }
     
     /// Encodable 객체를 [String: Any] 변환합니다.
-    /// Any가 nil인 경우 compactMapValues에서 제외됩니다.
+    /// Any(value)가 nil인 경우 compactMapValues에서 제외됩니다.
     ///
     /// - Returns: `.requestParameters` 또는 `.requestPlain`
     private func toDictionary() throws -> [String: Any] {
