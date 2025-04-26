@@ -19,19 +19,18 @@ final class NetworkEventMonitor: EventMonitor {
         #if Dev
         let logString: String = """
         ----------------------------------------------------
-
         🛰 NETWORK Reqeust LOG
-
         ----------------------------------------------------
-
         1️⃣ URL / Method / Header
 
         🟢 URL: \(request.request?.url?.absoluteString ?? "")
         🟢 Method: \(request.request?.httpMethod ?? "")
         🟢 Headers: \(request.request?.allHTTPHeaderFields?.toPrettyPrintedString ?? "")
-                
         ----------------------------------------------------
-        
+        2️⃣ Body
+
+        \(request.request?.httpBody?.toPrettyPrintedString ?? "보낸 Body가 없습니다.")
+        ----------------------------------------------------
         """
         
         requestLogs[request.id.uuidString] = logString
@@ -39,10 +38,11 @@ final class NetworkEventMonitor: EventMonitor {
     }
     
     // MARK: Response
-    func request<Value>(
+    func request(
         _ request: DataRequest,
-        didParseResponse response: DataResponse<Value, AFError>
+        didParseResponse response: DataResponse<Data?, AFError>
     ) {
+        #if Dev
         var logString = requestLogs[request.id.uuidString] ?? ""
         
         logString += "\n🛰 NETWORK Response LOG"
@@ -68,6 +68,7 @@ final class NetworkEventMonitor: EventMonitor {
         logString += "\n\n----------------------------------------------------"
         print(logString)
         requestLogs.removeValue(forKey: request.id.uuidString)
+        #endif
     }
     
     func request(
