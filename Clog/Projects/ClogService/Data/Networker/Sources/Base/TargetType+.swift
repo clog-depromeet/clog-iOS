@@ -11,6 +11,6 @@ import Moya
 public extension TargetType {
     // Header 기본 구현
     var headers: [String: String]? {
-        Headers.contentJson
+        Headers.common
     }
 }

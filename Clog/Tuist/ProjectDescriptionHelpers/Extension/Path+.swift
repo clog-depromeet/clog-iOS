@@ -36,10 +36,6 @@ public extension ProjectDescription.Path {
         return .relativeToRoot("Projects/\(service.rawValue)/Shared")
     }
     
-    static func releativeStarlink(_ service: ServiceType) -> Self {
-        return .relativeToRoot("Projects/\(service.rawValue)/Data/Starlink")
-    }
-    
     static func relativeUmbrella() -> Self {
         return .relativeToRoot("Projects/Umbrella")
     }

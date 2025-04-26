@@ -12,7 +12,6 @@ let project = Project.configure(
     moduleType: .module(name: "Networker"),
     product: .staticFramework,
     dependencies: [
-        .Framework.Starlink,
         .Library.moya
     ]
 )

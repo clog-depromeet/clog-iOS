@@ -13,9 +13,7 @@ public extension TargetDependency {
     struct SPM {}
 }
 
-public extension TargetDependency.Framework {
-    static let Starlink = TargetDependency.project(target: "Starlink", path: .releativeStarlink(.clog))
-}
+public extension TargetDependency.Framework {}
 
 public extension TargetDependency.Library {
     static let tca = TargetDependency.external(name: "ComposableArchitecture")
