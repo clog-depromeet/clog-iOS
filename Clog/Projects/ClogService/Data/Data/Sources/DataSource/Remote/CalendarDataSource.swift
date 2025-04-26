@@ -64,14 +64,7 @@ extension CalendarTarget: TargetType {
     var task: Moya.Task {
         switch self {
         case .calendars(let request):
-            let params: [String: Any?] = [
-                "year": request.year,
-                "month": request.month
-            ]
-            return .requestParameters(
-                parameters: params.compactMapValues { $0 },
-                encoding: URLEncoding.default
-            )
+            return request.toSafeRequestParameter()
         }
     }
 }

@@ -155,13 +155,7 @@ extension StoriesTarget: TargetType {
         case .save(let request):
             return .requestJSONEncodable(request)
         case .problem(let request):
-            let params: [String: Any?] = [
-                "gradeId": request.body.gradeId
-            ]
-            return .requestParameters(
-                parameters: params.compactMapValues { $0 },
-                encoding: URLEncoding.default
-            )
+            return request.toSafeRequestParameter()
         }
     }
 }

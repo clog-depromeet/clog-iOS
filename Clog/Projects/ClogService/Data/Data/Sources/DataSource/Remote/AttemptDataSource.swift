@@ -117,16 +117,7 @@ extension AttemptTarget: TargetType {
     var task: Moya.Task {
         switch self {
         case .attempts(let request):
-            let params: [String: Any?] = [
-                "attemptStatus": request.attemptStatus,
-                "cragId": request.cragId,
-                "gradeId": request.gradeId
-            ]
-            
-            return .requestParameters(
-                parameters: params.compactMapValues { $0 },
-                encoding: URLEncoding.default
-            )
+            return request.toSafeRequestParameter()
         case .detailAttempt, .delete:
             return .requestPlain
         case .patch(_, let requestDTO):

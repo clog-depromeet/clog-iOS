@@ -92,6 +92,7 @@ extension CragTarget: TargetType {
         case .myCrags:
             return .requestPlain
         case .nearBy(let longitude, let latitude, let cursor, let keyword):
+            // TODO: Encodable 객체로 넘겨야 변환이 쉬워짐 수정 필요
             let params: [String: Any?] = [
                 "longitude": longitude,
                 "latitude": latitude,
