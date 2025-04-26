@@ -20,6 +20,7 @@ import Networker
 import Swinject
 import AccountDomain
 import ReportDomain
+import TokenDomain
 
 import VideoFeatureInterface
 import VideoFeature
@@ -210,6 +211,13 @@ public struct ClogServiceAssembly: Assembly {
         
         container.register(VideoDataManager.self) { _ in
             LocalVideoDataManager()
+        }
+        
+        container.register(TokenRepository.self) { _ in
+            DefaultTokenRepository(
+                tokenDataSource: DefaultTokenDataSource(),
+                authDataSource: DefaultAuthDataSource()
+            )
         }
     }
 }

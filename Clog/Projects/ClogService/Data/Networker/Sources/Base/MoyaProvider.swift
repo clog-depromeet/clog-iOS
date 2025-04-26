@@ -19,7 +19,8 @@ public extension MoyaProvider {
         configuration.timeoutIntervalForRequest = 10 // 요청에 대한 타임아웃 10초
         configuration.timeoutIntervalForResource = 10 // 리소스에 대한 타임아웃 10초
         
-        let tokenCredential = TokenAuthenticationCredential(nil)
+        let networkEventMonitor = NetworkEventMonitor()
+        let tokenCredential = TokenAuthenticationCredential()
         let authenticatorInterceptor = AuthenticationInterceptor(
             authenticator: TokenAuthenticator(),
             credential: tokenCredential
@@ -27,7 +28,8 @@ public extension MoyaProvider {
         
         let session = Session(
             configuration: configuration,
-            interceptor: authenticatorInterceptor
+            interceptor: authenticatorInterceptor,
+            eventMonitors: [networkEventMonitor]
         )
         
         return MoyaProvider<T>(session: session)
@@ -40,7 +42,11 @@ public extension MoyaProvider {
         configuration.timeoutIntervalForRequest = 10 // 요청에 대한 타임아웃 10초
         configuration.timeoutIntervalForResource = 10 // 리소스에 대한 타임아웃 10초
         
-        let session = Session(configuration: configuration)
+        let networkEventMonitor = NetworkEventMonitor()
+        let session = Session(
+            configuration: configuration,
+            eventMonitors: [networkEventMonitor]
+        )
         
         return MoyaProvider<T>(session: session)
     }

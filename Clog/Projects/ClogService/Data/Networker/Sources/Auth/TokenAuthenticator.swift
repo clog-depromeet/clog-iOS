@@ -15,6 +15,10 @@ import Shared
 final class TokenAuthenticator: Authenticator {
     typealias Credential = TokenAuthenticationCredential
     
+    private var tokenRepository: TokenRepository {
+        ClogDI.container.resolve(TokenRepository.self)!
+    }
+    
     func didRequest(
         _ urlRequest: URLRequest,
         with response: HTTPURLResponse,
@@ -63,13 +67,10 @@ final class TokenAuthenticator: Authenticator {
     )  {
         Task {
             do {
-                // refresh 토큰을 사용해서 Access 재발급
-                // 임시 코드
-                let token = AuthToken(accessToken: "", refreshToken: "")
-                
-                let credential = Credential(token)
-                
-                completion(.success(credential))
+                // refresh 재발급 및 저장
+                let token = try await tokenRepository.refresh(refreshToken)
+                tokenRepository.saveToken(token)
+                completion(.success(Credential()))
             } catch {
                 completion(.failure(error))
             }
