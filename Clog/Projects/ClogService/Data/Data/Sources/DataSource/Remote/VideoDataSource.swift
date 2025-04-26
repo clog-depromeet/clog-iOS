@@ -21,16 +21,18 @@ public protocol VideoDataSourceLogic: Sendable {
 
 public struct VideoDataSource: VideoDataSourceLogic {
     
-    private let provider: MoyaProvider<VideoTarget>
+    private let authorizedProvider: MoyaProvider<VideoTarget>
+    private let plainProvider: MoyaProvider<VideoTarget>
     
     public init() {
-        self.provider = MoyaProvider<VideoTarget>.authorized()
+        self.authorizedProvider = MoyaProvider<VideoTarget>.authorized()
+        self.plainProvider = MoyaProvider<VideoTarget>.plain()
     }
     
     public func authenticate(
         _ request: ThumbnailPreSignedUploadRequestDTO
     ) async throws -> VideoThumbnailUploadResponseDTO {
-        let response: BaseResponseDTO<VideoThumbnailUploadResponseDTO> = try await provider.request(VideoTarget.authenticate(request))
+        let response: BaseResponseDTO<VideoThumbnailUploadResponseDTO> = try await authorizedProvider.request(VideoTarget.authenticate(request))
 
         guard let data = response.data else {
             throw NetworkError.decoding
@@ -40,7 +42,12 @@ public struct VideoDataSource: VideoDataSourceLogic {
     }
     
     public func thumbnailUpload(preSignedURL: String, data: Data) async throws {
-        let _: BaseResponseDTO<EmptyResponseDTO> = try await provider.request(VideoTarget.upload(preSignedURL: preSignedURL, data: data))
+        try await plainProvider.request(
+            VideoTarget.upload(
+                preSignedURL: preSignedURL,
+                data: data
+            )
+        )
     }
 }
 
@@ -52,15 +59,20 @@ enum VideoTarget {
 extension VideoTarget: TargetType {
     
     var baseURL: URL {
-        return URL(string: Environment.baseURL + "/api/v1/thumbnails")!
+        switch self {
+        case .authenticate:
+            return URL(string: Environment.baseURL + "/api/v1/thumbnails")!
+        case .upload(let url, _):
+            return URL(string: url)!
+        }
     }
     
     var path: String {
         switch self {
         case .authenticate:
             return "/upload-url"
-        case .upload(let url, _):
-            return url
+        case .upload:
+            return ""
         }
     }
     

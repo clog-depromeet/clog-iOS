@@ -549,6 +549,8 @@ extension RecordedFeature {
             
             let assetId = try await videoUseCase.execute(saveFile: state.path)
             
+            print("✅ thumbnailURL: \(thumbNailUrl)")
+            
             let request = AttemptRequest(
                 status: state.climbingResult,
                 problemId: story.problemId,

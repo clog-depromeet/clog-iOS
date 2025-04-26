@@ -50,16 +50,16 @@ final class NetworkEventMonitor: EventMonitor {
 
         switch response.result {
         case .success(_):
-            logString += "3️⃣ 서버 연결 성공"
+            logString += "🟢 서버 연결 성공"
         case .failure(_):
-            logString += "3️⃣ 서버 연결 실패"
+            logString += "🔴 서버 연결 실패"
         }
 
         logString += "\n\nResult: \(response.result)" + "\n"
         + "StatusCode: " + "\(response.response?.statusCode ?? 0)" + "\n"
         
         logString += "\n----------------------------------------------------\n\n"
-        logString += "4️⃣ Data 확인하기\n"
+        logString += "3️⃣ Data 확인하기\n"
         if let response = response.data?.toPrettyPrintedString {
             logString += response
         } else {

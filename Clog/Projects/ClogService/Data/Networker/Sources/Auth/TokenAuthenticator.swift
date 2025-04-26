@@ -36,7 +36,7 @@ final class TokenAuthenticator: Authenticator {
     
     func apply(_ credential: TokenAuthenticationCredential, to urlRequest: inout URLRequest) {
         guard let accessToken = credential.accessToken else { return }
-        urlRequest.headers.add(.authorization("Bearer \(accessToken)"))
+        urlRequest.headers.add(.authorization(accessToken))
     }
     
     func refresh(
