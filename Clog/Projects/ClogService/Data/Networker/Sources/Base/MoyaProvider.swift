@@ -73,7 +73,7 @@ public extension MoyaProvider {
                     }
                     
                 case .failure(let error):
-                    continuation.resume(throwing: NetworkError.unknown)
+                    continuation.resume(throwing: NetworkError.failure(error))
                 }
             }
         }
@@ -92,7 +92,7 @@ public extension MoyaProvider {
                     continuation.resume(returning: ())
                     
                 case .failure(let error):
-                    continuation.resume(throwing: NetworkError.unknown)
+                    continuation.resume(throwing: NetworkError.failure(error))
                 }
             }
         }

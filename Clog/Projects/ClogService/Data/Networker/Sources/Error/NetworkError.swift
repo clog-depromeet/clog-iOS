@@ -11,6 +11,7 @@ import Moya
 
 public enum NetworkError: Error {
     case underlying(Response)
+    case failure(Error)
     case decoding
     case unknown
     case tokenEmpty

@@ -18,19 +18,17 @@ final class NetworkEventMonitor: EventMonitor {
     func requestDidFinish(_ request: Request) {
         #if Dev
         let logString: String = """
-        ----------------------------------------------------
-        🛰 NETWORK Reqeust LOG
-        ----------------------------------------------------
-        1️⃣ URL / Method / Header
-
-        🟢 URL: \(request.request?.url?.absoluteString ?? "")
-        🟢 Method: \(request.request?.httpMethod ?? "")
-        🟢 Headers: \(request.request?.allHTTPHeaderFields?.toPrettyPrintedString ?? "")
-        ----------------------------------------------------
-        2️⃣ Body
-
-        \(request.request?.httpBody?.toPrettyPrintedString ?? "보낸 Body가 없습니다.")
-        ----------------------------------------------------
+        ------------------------------------------------------------
+        🌐 [Request]
+        ------------------------------------------------------------
+        ✅ URL      : \(request.request?.url?.absoluteString ?? "없음")
+        ✅ Method   : \(request.request?.httpMethod ?? "없음")
+        ✅ Headers  : \(request.request?.allHTTPHeaderFields?.toPrettyPrintedString ?? "없음")
+        ------------------------------------------------------------
+        🎟️ Request Body
+        ------------------------------------------------------------
+        \(request.request?.httpBody?.toPrettyPrintedString ?? "❗️ Body가 없습니다.")
+        ------------------------------------------------------------
         """
         
         requestLogs[request.id.uuidString] = logString
@@ -45,8 +43,8 @@ final class NetworkEventMonitor: EventMonitor {
         #if Dev
         var logString = requestLogs[request.id.uuidString] ?? ""
         
-        logString += "\n🛰 NETWORK Response LOG"
-        logString += "\n----------------------------------------------------\n\n"
+        logString += "\n🌐 [Response]"
+        logString += "\n----------------------------------------------------\n"
 
         switch response.result {
         case .success(_):
@@ -55,11 +53,11 @@ final class NetworkEventMonitor: EventMonitor {
             logString += "🔴 서버 연결 실패"
         }
 
-        logString += "\n\nResult: \(response.result)" + "\n"
-        + "StatusCode: " + "\(response.response?.statusCode ?? 0)" + "\n"
+        logString += "\nResult: \(response.result)" + "\n"
+        + "StatusCode: " + "\(response.response?.statusCode ?? 0)"
         
-        logString += "\n----------------------------------------------------\n\n"
-        logString += "3️⃣ Data 확인하기\n"
+        logString += "\n----------------------------------------------------\n"
+        logString += "📊 Response Data\n"
         if let response = response.data?.toPrettyPrintedString {
             logString += response
         } else {
