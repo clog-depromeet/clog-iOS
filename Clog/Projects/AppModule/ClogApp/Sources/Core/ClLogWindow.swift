@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 import SwiftUI
 import ClogService
-import Starlink
 
 import Dependencies
 
@@ -19,7 +18,7 @@ final class ClogWindow: UIWindow {
     override init(windowScene: UIWindowScene) {
         super.init(windowScene: windowScene)
         if ClogPhase.current == .dev {
-            ConsoleWindow.shared.showOverlay()
+            
         }
     }
 
@@ -28,11 +27,10 @@ final class ClogWindow: UIWindow {
     }
 
     override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
-        if ClogPhase.current == .dev, motion == .motionShake, ConsoleWindow.shared.isShowing == false {
+        if ClogPhase.current == .dev, motion == .motionShake {
             let generator = UINotificationFeedbackGenerator()
             generator.prepare()
             generator.notificationOccurred(.success)
-            ConsoleWindow.shared.showOverlay()
         }
         super.motionEnded(motion, with: event)
     }

@@ -10,7 +10,6 @@ import Foundation
 import VideoDomain
 
 import Networker
-import Starlink
 import Swinject
 import Photos
 

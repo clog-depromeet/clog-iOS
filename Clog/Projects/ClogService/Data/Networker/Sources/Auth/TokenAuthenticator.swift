@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 
 import TokenDomain
+import Shared
 
 final class TokenAuthenticator: Authenticator {
     typealias Credential = TokenAuthenticationCredential
@@ -50,6 +51,7 @@ final class TokenAuthenticator: Authenticator {
             case .success(let success):
                 completion(.success(success))
             case .failure(let failure):
+                NotificationCenter.default.post(name: .didKickOut, object: nil)
                 completion(.failure(failure))
             }
         }

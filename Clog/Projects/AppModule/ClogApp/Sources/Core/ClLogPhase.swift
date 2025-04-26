@@ -9,7 +9,6 @@
 import Foundation
 
 import ClogService
-import Starlink
 
 @frozen public enum ClogPhase: String, Sendable {
     
@@ -44,14 +43,8 @@ import Starlink
         // otherLink를 추가해서 #if로 구현해도 괜찮음
         #if Dev
         ClogPhase.current = .dev
-        PulseManager.onPulse()
         #elseif Prod
         ClogPhase.current = .production
         #endif
-        Clogger().message(
-            label: "[\(Self.self)]\(#function)",
-            level: .info,
-            message: "[\(Self.self)][Phase] => \(ClogPhase.current)"
-        )
     }
 }
