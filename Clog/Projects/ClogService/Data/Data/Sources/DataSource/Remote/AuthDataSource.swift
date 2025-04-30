@@ -8,9 +8,9 @@
 
 import Foundation
 
-import Networker
-
 import Moya
+
+import Networker
 
 public protocol AuthDataSource {
     func kakaoLogin(idToken: String) async throws -> AuthTokenDTO
@@ -21,11 +21,9 @@ public protocol AuthDataSource {
 public struct DefaultAuthDataSource: AuthDataSource {
     private typealias AuthTokenResponseType = BaseResponseDTO<AuthTokenDTO>
     
-    private let authorizedProvider: MoyaProvider<LoginTarget>
     private let plainProvider: MoyaProvider<LoginTarget>
 
     public init() {
-        self.authorizedProvider = MoyaProvider<LoginTarget>.authorized()
         self.plainProvider = MoyaProvider<LoginTarget>.plain()
     }
     
@@ -56,7 +54,7 @@ public struct DefaultAuthDataSource: AuthDataSource {
 
     public func refresh(refreshToken: String) async throws -> AuthTokenDTO {
         let request = RefreshReqeustDTO(refreshToken: refreshToken)
-        let response: AuthTokenResponseType = try await authorizedProvider.request(.refresh(request))
+        let response: AuthTokenResponseType = try await plainProvider.request(.refresh(request))
         
         guard let data = response.data else {
             throw NetworkError.decoding

@@ -15,16 +15,29 @@ import TokenDomain
 
 struct TokenAuthenticationCredential: AuthenticationCredential {
     
+    private var token: AuthToken?
     private var tokenRepository: TokenRepository {
         ClogDI.container.resolve(TokenRepository.self)!
     }
     
+    public init(token: AuthToken? = nil) {
+        self.token = token
+    }
+    
     var accessToken: String? {
-        return tokenRepository.accessToken
+        if let token {
+            return token.accessToken
+        } else {
+            return tokenRepository.accessToken
+        }
     }
     
     var refreshToken: String? {
-        return tokenRepository.refreshToken
+        if let token {
+            return token.refreshToken
+        } else {
+            return tokenRepository.refreshToken
+        }
     }
     
     var requiresRefresh: Bool {

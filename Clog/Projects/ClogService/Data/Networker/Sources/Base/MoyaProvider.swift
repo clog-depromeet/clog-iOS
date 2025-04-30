@@ -11,6 +11,9 @@ import Foundation
 import Alamofire
 import Moya
 
+import TokenDomain
+import Shared
+
 public extension MoyaProvider {
     /// 인증이 필요한 요청을 위한 Provider입니다.
     /// 내부적으로 Token 기반 인증 흐름(AuthenticationInterceptor 등)이 적용됩니다.
@@ -20,9 +23,12 @@ public extension MoyaProvider {
         configuration.timeoutIntervalForResource = 10 // 리소스에 대한 타임아웃 10초
         
         let networkEventMonitor = NetworkEventMonitor()
+        
         let tokenCredential = TokenAuthenticationCredential()
+        let authenticator = TokenAuthenticator()
+        
         let authenticatorInterceptor = AuthenticationInterceptor(
-            authenticator: TokenAuthenticator(),
+            authenticator: authenticator,
             credential: tokenCredential
         )
         

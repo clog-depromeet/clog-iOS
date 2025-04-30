@@ -35,7 +35,10 @@ final class TokenAuthenticator: Authenticator {
     }
     
     func apply(_ credential: TokenAuthenticationCredential, to urlRequest: inout URLRequest) {
-        guard let accessToken = credential.accessToken else { return }
+        guard let accessToken = credential.accessToken else {
+            print("⚠️ 액세스 토큰이 없습니다.")
+            return
+        }
         urlRequest.headers.add(.authorization(accessToken))
     }
     
@@ -49,8 +52,8 @@ final class TokenAuthenticator: Authenticator {
             completion(.failure(NetworkError.tokenEmpty))
             return
         }
-        
-        refreshAccessToken(refreshToken: refreshToken) { result in
+        Task {
+            let result = try await refreshAccessToken(refreshToken: refreshToken)
             switch result {
             case .success(let success):
                 completion(.success(success))
@@ -61,19 +64,14 @@ final class TokenAuthenticator: Authenticator {
         }
     }
     
-    private func refreshAccessToken(
-        refreshToken: String,
-        completion: @escaping (Result<Credential, Error>) -> Void
-    )  {
-        Task {
-            do {
-                // refresh 재발급 및 저장
-                let token = try await tokenRepository.refresh(refreshToken)
-                tokenRepository.saveToken(token)
-                completion(.success(Credential()))
-            } catch {
-                completion(.failure(error))
-            }
+    private func refreshAccessToken(refreshToken: String) async throws -> Result<Credential, Error> {
+        do {
+            // refresh 재발급 및 저장
+            let token = try await tokenRepository.refresh(refreshToken)
+            tokenRepository.saveToken(token)
+            return .success(Credential(token: token))
+        } catch {
+            return .failure(error)
         }
     }
 }

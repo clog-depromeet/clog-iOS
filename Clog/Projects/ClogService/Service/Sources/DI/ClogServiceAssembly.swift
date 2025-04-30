@@ -219,5 +219,6 @@ public struct ClogServiceAssembly: Assembly {
                 authDataSource: DefaultAuthDataSource()
             )
         }
+        .inObjectScope(.container)
     }
 }

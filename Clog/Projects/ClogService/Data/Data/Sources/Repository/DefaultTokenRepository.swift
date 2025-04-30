@@ -9,7 +9,7 @@
 import Foundation
 import TokenDomain
 
-public struct DefaultTokenRepository: TokenRepository {
+public final class DefaultTokenRepository: TokenRepository {
     public var accessToken: String? {
         getAccessToken()
     }
@@ -21,6 +21,9 @@ public struct DefaultTokenRepository: TokenRepository {
     }
     public var isRefreshTokenExpired: Bool {
         isExpired(refreshToken)
+    }
+    public var token: AuthToken? {
+        tokenDataSource.loadToken()
     }
     
     private let tokenDataSource: TokenDataSource
@@ -56,7 +59,7 @@ extension DefaultTokenRepository {
         guard let token else { return true }
         let segments = token.components(separatedBy: ".")
         guard let expired = decodeJWTPart(segments[1]) else { return true }
-        let expiredDate = Date(timeIntervalSince1970: Double(expired)).addingTimeInterval(-20)
+        let expiredDate = Date(timeIntervalSince1970: Double(expired)).addingTimeInterval(-10)
         return expiredDate < Date()
     }
     
