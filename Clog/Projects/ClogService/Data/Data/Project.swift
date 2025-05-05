@@ -13,6 +13,5 @@ let project = Project.configure(
     product: .staticFramework,
     dependencies: [
         .Data.networker(.clog),
-        .Domains.Domain.domain(.clog),
     ]
 )

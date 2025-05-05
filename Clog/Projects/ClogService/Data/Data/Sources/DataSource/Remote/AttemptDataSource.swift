@@ -126,4 +126,6 @@ extension AttemptTarget: TargetType {
             return .requestJSONEncodable(request)
         }
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

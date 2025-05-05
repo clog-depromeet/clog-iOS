@@ -102,4 +102,6 @@ extension VideoTarget: TargetType {
             return Headers.contentJson
         }
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

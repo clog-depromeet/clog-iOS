@@ -101,4 +101,6 @@ extension UserTarget: TargetType {
             return .requestJSONEncodable(request)
         }
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

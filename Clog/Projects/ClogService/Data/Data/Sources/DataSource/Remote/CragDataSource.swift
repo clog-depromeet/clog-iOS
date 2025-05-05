@@ -105,4 +105,6 @@ extension CragTarget: TargetType {
             )
         }
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

@@ -75,4 +75,6 @@ extension GradeTarget: TargetType {
     var task: Task {
         return .requestPlain
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

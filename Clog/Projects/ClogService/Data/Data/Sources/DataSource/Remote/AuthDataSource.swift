@@ -102,4 +102,6 @@ extension LoginTarget: TargetType {
             return .requestJSONEncodable(refreshReqeustDTO)
         }
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

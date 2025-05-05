@@ -158,4 +158,6 @@ extension StoriesTarget: TargetType {
             return request.toSafeRequestParameter()
         }
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

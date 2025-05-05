@@ -12,6 +12,7 @@ let project = Project.configure(
     moduleType: .module(name: "Networker"),
     product: .staticFramework,
     dependencies: [
-        .Library.moya
+        .Library.moya,
+        .Domains.Domain.domain(.clog),
     ]
 )

@@ -60,4 +60,6 @@ extension ReportTarget: TargetType {
     var task: Task {
         return .requestPlain
     }
+    
+    var validationType: ValidationType { .successCodes }
 }

@@ -67,4 +67,6 @@ extension CalendarTarget: TargetType {
             return request.toSafeRequestParameter()
         }
     }
+    
+    var validationType: ValidationType { .successCodes }
 }
