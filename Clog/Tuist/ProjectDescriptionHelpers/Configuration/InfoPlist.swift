@@ -5,7 +5,7 @@
 //  Created by Junyoung on 1/8/25.
 //
 
-@preconcurrency import ProjectDescription
+import ProjectDescription
 
 public struct InfoPlist {
     private static let commonInfoPlist: [String: Plist.Value] = [

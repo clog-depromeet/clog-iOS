@@ -2,7 +2,7 @@
 @preconcurrency import PackageDescription
 
 #if TUIST
-@preconcurrency import ProjectDescription
+import ProjectDescription
 import ProjectDescriptionHelpers
 
     let packageSettings = PackageSettings(
