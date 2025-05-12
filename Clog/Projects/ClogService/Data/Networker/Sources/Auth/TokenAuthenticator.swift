@@ -53,7 +53,7 @@ final class TokenAuthenticator: Authenticator {
             return
         }
         Task.detached {
-            let result = try await refreshAccessToken(refreshToken: refreshToken)
+            let result = try await self.refreshAccessToken(refreshToken: refreshToken)
             switch result {
             case .success(let success):
                 completion(.success(success))
