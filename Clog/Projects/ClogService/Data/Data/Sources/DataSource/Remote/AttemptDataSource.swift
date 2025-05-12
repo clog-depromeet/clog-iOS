@@ -8,7 +8,7 @@
 
 import Foundation
 import Networker
-import Starlink
+import Moya
 
 public protocol AttemptDataSource {
     func attempts(_ request: AttemptFilterRequestDTO) async throws -> [FolderAttemptResponseDTO]
@@ -20,33 +20,39 @@ public protocol AttemptDataSource {
 }
 
 public final class DefaultAttemptDataSource: AttemptDataSource {
-    private let provider: Provider
+    private typealias FolderAttemptResponseType = BaseResponseDTO<[FolderAttemptResponseDTO]>
+    private typealias DetailAttemptResponseType = BaseResponseDTO<DetailAttemptResponseDTO>
     
-    public init(provider: Provider) {
-        self.provider = provider
+    private let provider: MoyaProvider<AttemptTarget>
+    
+    public init() {
+        self.provider = MoyaProvider<AttemptTarget>.authorized()
     }
     
-    public func attempts(_ request: AttemptFilterRequestDTO) async throws -> [FolderAttemptResponseDTO] {
-        let response: BaseResponseDTO<FolderResponseDTO> = try await provider.request(
-            AttemptTarget.attempts(request: request)
+    public func attempts(
+        _ request: AttemptFilterRequestDTO
+    ) async throws -> [FolderAttemptResponseDTO] {
+        let response: FolderAttemptResponseType = try await provider.request(
+            .attempts(request: request)
         )
         
-        guard let attempts = response.data?.attempts else {
-            throw StarlinkError.inValidJSONData(nil)
+        guard let data = response.data else {
+            throw NetworkError.decoding
         }
         
-        return attempts
+        return data
     }
     
     public func attempt(_ attemptId: Int) async throws -> DetailAttemptResponseDTO {
-        let response: BaseResponseDTO<DetailAttemptResponseDTO> = try await provider.request(AttemptTarget.detailAttempt(id: attemptId)
+        let response: DetailAttemptResponseType = try await provider.request(
+            .detailAttempt(id: attemptId)
         )
         
-        guard let attempt = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+        guard let data = response.data else {
+            throw NetworkError.decoding
         }
         
-        return attempt
+        return data
     }
     
     public func patch(
@@ -56,47 +62,37 @@ public final class DefaultAttemptDataSource: AttemptDataSource {
         unregisterGrade: Bool? = nil,
         result: String? = nil
     ) async throws {
-        let requestDTO = AttemptPatchRequestDTO(
+        let request = AttemptPatchRequestDTO(
             cragId: cragId,
             gradeId: gradeId,
             gradeUnregistered: unregisterGrade,
             status: result
         )
-        
-        let _: EmptyResponseDTO = try await provider.request(
-            AttemptTarget.patch(id: id, requestDTO: requestDTO)
+        return try await provider.request(
+            .patch(id: id, request: request)
         )
     }
     
     public func delete(_ attemptId: Int) async throws {
-        let _: EmptyResponseDTO = try await provider.request(AttemptTarget.delete(id: attemptId))
+        try await provider.request(AttemptTarget.delete(id: attemptId))
     }
     
     public func register(_ request: AttemptRequestDTO) async throws {
-        let _: EmptyResponseDTO = try await provider.request(AttemptTarget.register(request))
+        try await provider.request(AttemptTarget.register(request))
     }
 }
 
 enum AttemptTarget {
     case attempts(request: AttemptFilterRequestDTO)
     case detailAttempt(id: Int)
-    case patch(id: Int, requestDTO: AttemptPatchRequestDTO)
+    case patch(id: Int, request: AttemptPatchRequestDTO)
     case delete(id: Int)
     case register(AttemptRequestDTO)
 }
 
-extension AttemptTarget: EndpointType {
-    var encoding: any StarlinkEncodable {
-        switch self {
-        case .patch, .register:
-            Starlink.StarlinkJSONEncoding()
-        default: Starlink.StarlinkURLEncoding()
-        }
-    }
-    
-   
-    var baseURL: String {
-        return Environment.baseURL + "/api/v1/attempts"
+extension AttemptTarget: TargetType {
+    var baseURL: URL {
+        return URL(string: Environment.baseURL + "/api/v1/attempts")!
     }
     
     var path: String {
@@ -109,7 +105,7 @@ extension AttemptTarget: EndpointType {
         }
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .attempts, .detailAttempt: .get
         case .patch: .patch
@@ -118,26 +114,18 @@ extension AttemptTarget: EndpointType {
         }
     }
     
-    var encodable: Encodable? {
+    var task: Moya.Task {
         switch self {
-        case .attempts, .detailAttempt, .delete, .register: nil
-        case .patch(_, let requestDTO): nil
+        case .attempts(let request):
+            return request.toSafeRequestParameter()
+        case .detailAttempt, .delete:
+            return .requestPlain
+        case .patch(_, let requestDTO):
+            return .requestJSONEncodable(requestDTO)
+        case .register(let request):
+            return .requestJSONEncodable(request)
         }
     }
     
-    var parameters: Networker.ParameterType? {
-        switch self {
-        case .attempts(let request): .encodable(request)
-        case .detailAttempt, .delete: nil
-        case .patch(_, let requestDTO): .encodable(requestDTO)
-        case .register(let request): .encodable(request)
-        }
-    }
-    
-    var headers: [Starlink.Header]? {
-        switch self {
-        case .attempts, .detailAttempt, .delete, .register: nil
-        case .patch: nil
-        }
-    }
+    var validationType: ValidationType { .successCodes }
 }

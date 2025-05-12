@@ -10,8 +10,6 @@ import Foundation
 
 import Domain
 
-import Starlink
-import Pulse
 import Swinject
 import Shared
 
@@ -19,16 +17,6 @@ public struct Clogger {
     
     public init() {}
     
-    public func message(
-        label: String = "",
-        level: LoggerStore.Level = .info,
-        message: String
-    ) {
-        ConsoleWindow.shared.message(
-            label: label,
-            level: level,
-            message: message)
-    }
 }
 
 extension Clogger: Assembly {
@@ -43,10 +31,8 @@ extension Clogger: Assembly {
 extension Clogger: LogConsoleUseCase {
     
     public func executeInfo(label: String, message: String) {
-        self.message(label: label, level: .info, message: message)
     }
     
     public func executeDebug(label: String, message: String) {
-        self.message(label: label, level: .debug, message: message)
     }
 }

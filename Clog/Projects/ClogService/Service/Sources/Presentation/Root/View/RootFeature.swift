@@ -248,11 +248,15 @@ private extension RootFeature {
 extension RootFeature {
     private func checkNickName() -> Effect<Action> {
         .run { send in
-            let user = try await accountUseCase.fetchAccount()
-            if user.name != nil {
-                await send(.changeDestination(.main))
-            } else {
-                await send(.changeDestination(.nickName))
+            do {
+                let user = try await accountUseCase.fetchAccount()
+                if user.name != nil {
+                    await send(.changeDestination(.main))
+                } else {
+                    await send(.changeDestination(.nickName))
+                }
+            } catch {
+                print(error)
             }
         }
     }

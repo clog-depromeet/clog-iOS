@@ -15,11 +15,11 @@ public protocol ValidateUserSessionUseCase {
 }
 
 public struct ValidateUserSession: ValidateUserSessionUseCase {
-    public init(repository: TokenRepository) {
+    public init(repository: LoginTokenRepository) {
         self.repository = repository
     }
     
-    private let repository: TokenRepository
+    private let repository: LoginTokenRepository
     
     public func getRefreshToken() -> String? {
         repository.getRefreshToken()

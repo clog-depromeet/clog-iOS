@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TokenDomain
 
 enum AppData {
     
@@ -34,10 +35,12 @@ enum AppData {
     /// 로그아웃 시 삭제할 데이터
     enum LoginUserKeychainKey: String, CaseIterable {
         case token
+        case provider
         
         var itemClass: KeychainItemType {
             switch self {
             case .token: .genericPassword
+            case .provider: .genericPassword
             }
         }
     }
@@ -53,8 +56,13 @@ enum AppData {
         key: LoginUserKeychainKey.token.rawValue,
         itemClass: LoginUserKeychainKey.token.itemClass
     )
+    static var token: AuthToken?
     
-    static var token: AuthTokenDTO?
+    @Keychain(
+        key: LoginUserKeychainKey.provider.rawValue,
+        itemClass: LoginUserKeychainKey.provider.itemClass
+    )
+    static var provider: String?
     
     static func clearLocalData() {
         // TODO

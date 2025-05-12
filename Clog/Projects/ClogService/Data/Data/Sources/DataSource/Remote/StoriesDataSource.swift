@@ -7,8 +7,9 @@
 //
 
 import Foundation
+
 import Networker
-import Starlink
+import Moya
 
 public protocol StoriesDataSource {
     func stories(_ storyId: Int) async throws -> StoryResponseDTO
@@ -21,10 +22,10 @@ public protocol StoriesDataSource {
 }
 
 public final class DefaultStoriesDataSource: StoriesDataSource {
-    private let provider: Provider
+    private let provider: MoyaProvider<StoriesTarget>
     
-    public init(provider: Provider) {
-        self.provider = provider
+    public init() {
+        self.provider = MoyaProvider<StoriesTarget>.authorized()
     }
     
     public func stories(_ storyId: Int) async throws -> StoryResponseDTO {
@@ -33,7 +34,7 @@ public final class DefaultStoriesDataSource: StoriesDataSource {
         )
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
             
         }
         
@@ -46,7 +47,7 @@ public final class DefaultStoriesDataSource: StoriesDataSource {
         )
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
             
         }
         
@@ -71,7 +72,7 @@ public final class DefaultStoriesDataSource: StoriesDataSource {
         )
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
             
         }
         
@@ -84,7 +85,7 @@ public final class DefaultStoriesDataSource: StoriesDataSource {
         )
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
             
         }
         
@@ -108,9 +109,9 @@ enum StoriesTarget {
     case updateStatus(Int)
 }
 
-extension StoriesTarget: EndpointType {
-    var baseURL: String {
-        return Environment.baseURL + "/api/v1/stories"
+extension StoriesTarget: TargetType {
+    var baseURL: URL {
+        return URL(string: Environment.baseURL + "/api/v1/stories")!
     }
     
     var path: String {
@@ -132,7 +133,7 @@ extension StoriesTarget: EndpointType {
         }
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .stories, .summary:
             return .get
@@ -145,46 +146,18 @@ extension StoriesTarget: EndpointType {
         }
     }
     
-    var parameters: ParameterType? {
+    var task: Task {
         switch self {
         case .stories, .summary, .delete, .updateStatus:
-            return .none
+            return .requestPlain
         case .memo(let request):
-            return .encodable(request.body)
+            return .requestJSONEncodable(request)
         case .save(let request):
-            return .encodable(request)
+            return .requestJSONEncodable(request)
         case .problem(let request):
-            if request.body.gradeId == nil {
-                let dictionary = Starlink.SafeDictionary<String, Any>(
-                    storage: [
-                        "gradeId" : "null",
-                    ]
-                )
-                return Networker.ParameterType.dictionary(dictionary)
-            } else {
-                return .encodable(request.body)
-            }
+            return request.toSafeRequestParameter()
         }
     }
     
-    var encodable: Encodable? {
-        switch self {
-        case .stories, .summary, .memo, .delete, .save, .problem, .updateStatus:
-            return .none
-        }
-    }
-    
-    var headers: [Starlink.Header]? {
-        nil
-    }
-    
-    var encoding: StarlinkEncodable {
-        switch self {
-        case .stories, .summary, .delete:
-            return Starlink.StarlinkURLEncoding()
-        case .memo, .save, .problem, .updateStatus:
-            return Starlink.StarlinkJSONEncoding()
-        }
-        
-    }
+    var validationType: ValidationType { .successCodes }
 }

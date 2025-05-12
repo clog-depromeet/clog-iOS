@@ -1,17 +1,10 @@
-//
-//  Project.swift
-//  Config
-//
-//  Created by Junyoung on 1/9/25.
-//
-
 import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project.configure(
-    moduleType: .module(name: "Data"),
+    moduleType: .domain(name: "Token"),
     product: .staticFramework,
     dependencies: [
-        .Data.networker(.clog),
+        .Modules.shared(.clog)
     ]
 )

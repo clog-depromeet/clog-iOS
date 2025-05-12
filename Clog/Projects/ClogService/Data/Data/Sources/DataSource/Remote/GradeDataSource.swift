@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import Starlink
 import Networker
+import Moya
 
 public protocol GradeDataSource {
     func myGrades() async throws -> [FolderGradeResponseDTO]
@@ -16,10 +16,10 @@ public protocol GradeDataSource {
 }
 
 public final class DefaultGradeDataSource: GradeDataSource {
-    private let provider: Provider
+    private let provider: MoyaProvider<GradeTarget>
     
-    public init(provider: Provider) {
-        self.provider = provider
+    public init() {
+        self.provider = MoyaProvider<GradeTarget>.authorized()
     }
     
     public func myGrades() async throws -> [FolderGradeResponseDTO] {
@@ -28,7 +28,7 @@ public final class DefaultGradeDataSource: GradeDataSource {
         )
         
         guard let myGrades = response.data?.contents else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
         }
         
         return myGrades
@@ -40,7 +40,7 @@ public final class DefaultGradeDataSource: GradeDataSource {
         )
         
         guard let grades = response.data?.grades else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
         }
         
         return grades
@@ -52,45 +52,29 @@ enum GradeTarget {
     case cragGrades(id: Int)
 }
 
-extension GradeTarget: EndpointType {
-    var encoding: any StarlinkEncodable {
-        Starlink.StarlinkURLEncoding()
-    }
-    
-    var baseURL: String {
-        Environment.baseURL
+extension GradeTarget: TargetType {
+    var baseURL: URL {
+        URL(string: Environment.baseURL + "/api/v1")!
     }
     
     var path: String {
         switch self {
-        case .myGrades: "/api/v1/grades/me"
-        case .cragGrades(let cragId): "/api/v1/\(cragId)/grades"
+        case .myGrades: 
+            "/grades/me"
+        case .cragGrades(let cragId):
+            "/\(cragId)/grades"
         }
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .myGrades, .cragGrades: .get
         }
     }
     
-    var parameters: Networker.ParameterType? {
-        switch self {
-        case .myGrades, .cragGrades: nil
-        }
+    var task: Task {
+        return .requestPlain
     }
     
-    var encodable: (any Encodable)? {
-        switch self {
-        case .myGrades, .cragGrades: nil
-        }
-    }
-    
-    var headers: [Starlink.Header]? {
-        switch self {
-        case .myGrades, .cragGrades: nil
-        }
-    }
-    
-    
+    var validationType: ValidationType { .successCodes }
 }

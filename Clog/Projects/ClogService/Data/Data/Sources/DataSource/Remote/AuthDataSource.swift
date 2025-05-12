@@ -6,9 +6,11 @@
 //  Copyright © 2025 Supershy. All rights reserved.
 //
 
-import Starlink
-import Networker
 import Foundation
+
+import Moya
+
+import Networker
 
 public protocol AuthDataSource {
     func kakaoLogin(idToken: String) async throws -> AuthTokenDTO
@@ -16,40 +18,35 @@ public protocol AuthDataSource {
     func refresh(refreshToken: String) async throws -> AuthTokenDTO
 }
 
-public final class DefaultAuthDataSource: AuthDataSource {
-    private let unAuthProvider: Provider
-    private let authProvider: Provider
+public struct DefaultAuthDataSource: AuthDataSource {
+    private typealias AuthTokenResponseType = BaseResponseDTO<AuthTokenDTO>
+    
+    private let plainProvider: MoyaProvider<LoginTarget>
 
-    public init(unAuthProvider: Provider, authProvider: Provider) {
-        self.unAuthProvider = unAuthProvider
-        self.authProvider = authProvider
+    public init() {
+        self.plainProvider = MoyaProvider<LoginTarget>.plain()
     }
     
     public func kakaoLogin(idToken: String) async throws-> AuthTokenDTO {
         let request = KakaoLoginReqeustDTO(idToken: idToken)
-        
-        let response: BaseResponseDTO<AuthTokenDTO> = try await unAuthProvider.request(
-            LoginTarget.kakaoLogin(request)
-        )
+        let response: AuthTokenResponseType = try await plainProvider.request(.kakaoLogin(request))
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
-            
+            throw NetworkError.decoding
         }
         
         return data
-        
     }
     
-    public func appleLogin(code: String, codeVerifier: String) async throws -> AuthTokenDTO {
+    public func appleLogin(
+        code: String,
+        codeVerifier: String
+    ) async throws -> AuthTokenDTO {
         let request = AppleLoginRequestDTO(code: code, codeVerifier: codeVerifier)
+        let response: AuthTokenResponseType = try await plainProvider.request(.appleLogin(request))
         
-        let response: BaseResponseDTO<AuthTokenDTO> = try await unAuthProvider.request(
-            LoginTarget.appleLogin(request)
-        )
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
-            
+            throw NetworkError.decoding
         }
         
         return data
@@ -57,78 +54,54 @@ public final class DefaultAuthDataSource: AuthDataSource {
 
     public func refresh(refreshToken: String) async throws -> AuthTokenDTO {
         let request = RefreshReqeustDTO(refreshToken: refreshToken)
-
-        let response: BaseResponseDTO<AuthTokenDTO> = try await authProvider.request(
-            LoginTarget.refresh(request)
-        )
-
+        let response: AuthTokenResponseType = try await plainProvider.request(.refresh(request))
+        
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
-
+            throw NetworkError.decoding
         }
-
         return data
     }
 }
 
-enum LoginTarget {
+private enum LoginTarget {
     case kakaoLogin(KakaoLoginReqeustDTO)
     case appleLogin(AppleLoginRequestDTO)
     case refresh(RefreshReqeustDTO)
 }
 
-extension LoginTarget: EndpointType {
-    
-    var baseURL: String {
-        return Environment.baseURL
+extension LoginTarget: TargetType {
+    var baseURL: URL {
+        return URL(string:Environment.baseURL + "/api/v1/auth")!
     }
     
     var path: String {
         switch self {
         case .kakaoLogin: 
-            return "/api/v1/auth/kakao"
+            return "/kakao"
         case .appleLogin:
-            return "/api/v1/auth/apple"
+            return "/apple"
         case .refresh:
-            return "/api/v1/auth/reissue/access-token"
+            return "/reissue/access-token"
         }
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .kakaoLogin, .appleLogin, .refresh:
             return .post
         }
     }
     
-    var parameters: ParameterType? {
+    var task: Moya.Task {
         switch self {
-        case .kakaoLogin(let request):
-            return .encodable(request)
-        case .appleLogin(let request):
-            return .encodable(request)
-
-        case .refresh(let request):
-            return .encodable(request)
+        case .kakaoLogin(let kakaoLoginReqeustDTO):
+            return .requestJSONEncodable(kakaoLoginReqeustDTO)
+        case .appleLogin(let appleLoginRequestDTO):
+            return .requestJSONEncodable(appleLoginRequestDTO)
+        case .refresh(let refreshReqeustDTO):
+            return .requestJSONEncodable(refreshReqeustDTO)
         }
     }
     
-    var encodable: Encodable? {
-        switch self {
-        case .kakaoLogin(let request):
-            return request
-        case .appleLogin(let request):
-            return request
-        case .refresh(let request):
-            return request
-        }
-    }
-    
-    var headers: [Starlink.Header]? {
-        nil
-    }
-    
-    var encoding: any StarlinkEncodable {
-        Starlink.StarlinkJSONEncoding()
-    }
+    var validationType: ValidationType { .successCodes }
 }

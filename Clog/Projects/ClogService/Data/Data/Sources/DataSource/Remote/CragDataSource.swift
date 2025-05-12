@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import Starlink
 import Networker
+import Moya
 
 public protocol CragDataSource {
     func myCrags(cursor: Double?) async throws -> (crags: [FolderCragResponseDTO], meta: BaseMetaResponseDTO?)
@@ -17,10 +17,11 @@ public protocol CragDataSource {
 
 public final class DefaultCragDataSource: CragDataSource {
     private typealias CragResponseType = BaseResponseDTO<BaseContentsResponse<[FolderCragResponseDTO], BaseMetaResponseDTO>>
-    private let provider: Provider
     
-    public init(provider: Provider) {
-        self.provider = provider
+    private let provider: MoyaProvider<CragTarget>
+    
+    public init() {
+        self.provider = MoyaProvider<CragTarget>.authorized()
     }
     
     public func myCrags(cursor: Double?) async throws -> (crags: [FolderCragResponseDTO], meta: BaseMetaResponseDTO?){
@@ -30,7 +31,7 @@ public final class DefaultCragDataSource: CragDataSource {
         
         guard let crags = response.data else {
             print("ERROR", #function)
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
         }
         
         let meta = response.data?.meta
@@ -45,11 +46,16 @@ public final class DefaultCragDataSource: CragDataSource {
         keyword: String?
     ) async throws -> (crags: [FolderCragResponseDTO], meta: BaseMetaResponseDTO?) {
         let response: CragResponseType = try await provider.request(
-            CragTarget.nearBy(longitude: longitude, latitude: latitude, cursor: cursor, keyword: keyword)
+            CragTarget.nearBy(
+                longitude: longitude,
+                latitude: latitude,
+                cursor: cursor,
+                keyword: keyword
+            )
         )
         
         guard let crags = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
+            throw NetworkError.decoding
         }
         let meta = response.data?.meta
         
@@ -63,51 +69,42 @@ enum CragTarget {
     case nearBy(longitude: Double?, latitude: Double?, cursor: Double?, keyword: String?)
 }
 
-extension CragTarget: EndpointType {
-    var encoding: any StarlinkEncodable {
-        Starlink.StarlinkURLEncoding()
-    }
-    
-    var baseURL: String {
-        Environment.baseURL
+extension CragTarget: TargetType {
+    var baseURL: URL {
+        return URL(string: Environment.baseURL + "/api/v1/crags")!
     }
     
     var path: String {
         switch self {
-        case .myCrags: "/api/v1/crags/me"
-        case .nearBy: "/api/v1/crags/nearby"
+        case .myCrags: "/me"
+        case .nearBy: "/nearby"
         }
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .myCrags, .nearBy: .get
         }
     }
     
-    var parameters: Networker.ParameterType? {
+    var task: Task {
         switch self {
-        case .myCrags: return nil
+        case .myCrags:
+            return .requestPlain
         case .nearBy(let longitude, let latitude, let cursor, let keyword):
-            var storage: [String: Any] = [:]
-            if let cursor { storage["cursor"] = cursor }
-            if let longitude { storage["longitude"] = longitude }
-            if let latitude { storage["latitude"] = latitude }
-            if let keyword { storage["keyword"] = keyword }
-            let dictionary = Starlink.SafeDictionary<String, Any>(storage: storage)
-            return Networker.ParameterType.dictionary(dictionary)
+            // TODO: Encodable 객체로 넘겨야 변환이 쉬워짐 수정 필요
+            let params: [String: Any?] = [
+                "longitude": longitude,
+                "latitude": latitude,
+                "cursor": cursor,
+                "keyword": keyword
+            ]
+            return .requestParameters(
+                parameters: params.compactMapValues { $0 },
+                encoding: URLEncoding.default
+            )
         }
     }
     
-    var encodable: (any Encodable)? {
-        switch self {
-        case .myCrags, .nearBy: nil
-        }
-    }
-    
-    var headers: [Starlink.Header]? {
-        switch self {
-        case .myCrags, .nearBy: nil
-        }
-    }
+    var validationType: ValidationType { .successCodes }
 }

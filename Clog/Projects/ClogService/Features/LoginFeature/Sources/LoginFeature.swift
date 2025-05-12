@@ -46,7 +46,7 @@ public struct LoginFeature {
                         try await useCase.execute(idToken: idToken)
                         await send(.successLogin)
                     } catch {
-                        await send(.successLogin)
+                        await send(.failLogin)
                     }
                 }
                 

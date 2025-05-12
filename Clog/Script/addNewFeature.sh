@@ -36,12 +36,12 @@ public extension TargetDependency.Features.$NAME {
     
     static let feature = TargetDependency.Features.project(
         name: "\(name)Feature",
-        service: .cllog
+        service: .clog
     )
     
     static let interface = TargetDependency.project(
         target: "\(name)FeatureInterface",
-        path: .relativeToFeature(path: "\(name)Feature", service: .cllog)
+        path: .relativeToFeature(path: "\(name)Feature", service: .clog)
     )
 }
 EOF

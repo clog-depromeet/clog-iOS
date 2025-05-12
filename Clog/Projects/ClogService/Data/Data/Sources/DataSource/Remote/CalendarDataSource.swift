@@ -8,28 +8,29 @@
 
 import Foundation
 import Networker
-import Starlink
+import Moya
 
 public protocol CalendarDataSource {
     func calendars(_ request: YearMonthRequestDTO) async throws -> CalendarResponseDTO
 }
 
 public final class DefaultCalendarDataSource: CalendarDataSource {
-    private let provider: Provider
+    private typealias CalendarResponseType = BaseResponseDTO<CalendarResponseDTO>
+    private let provider: MoyaProvider<CalendarTarget>
     
-    public init(provider: Provider) {
-        self.provider = provider
+    public init() {
+        self.provider = MoyaProvider<CalendarTarget>.authorized()
     }
     
-    public func calendars(_ request: YearMonthRequestDTO) async throws -> CalendarResponseDTO {
-        
-        let response: BaseResponseDTO<CalendarResponseDTO> = try await provider.request(
+    public func calendars(
+        _ request: YearMonthRequestDTO
+    ) async throws -> CalendarResponseDTO {
+        let response: CalendarResponseType = try await provider.request(
             CalendarTarget.calendars(request)
         )
         
         guard let data = response.data else {
-            throw StarlinkError.inValidJSONData(nil)
-            
+            throw NetworkError.decoding
         }
         
         return data
@@ -40,45 +41,32 @@ enum CalendarTarget {
     case calendars(YearMonthRequestDTO)
 }
 
-extension CalendarTarget: EndpointType {
+extension CalendarTarget: TargetType {
     
-    var baseURL: String {
-        return Environment.baseURL
+    var baseURL: URL {
+        return URL(string: Environment.baseURL + "/api/v1/calendars")!
     }
     
     var path: String {
         switch self {
         case .calendars:
-            return "/api/v1/calendars"
+            return ""
         }
     }
     
-    var method: Starlink.Method {
+    var method: Moya.Method {
         switch self {
         case .calendars:
             return .get
         }
     }
     
-    var parameters: ParameterType? {
+    var task: Moya.Task {
         switch self {
         case .calendars(let request):
-            return .encodable(request)
+            return request.toSafeRequestParameter()
         }
     }
     
-    var encodable: Encodable? {
-        switch self {
-        case .calendars(let request):
-            return request
-        }
-    }
-    
-    var headers: [Starlink.Header]? {
-        nil
-    }
-    
-    var encoding: any StarlinkEncodable {
-        Starlink.StarlinkURLEncoding()
-    }
+    var validationType: ValidationType { .successCodes }
 }

@@ -27,7 +27,8 @@ public struct DefaultLoginRepository: LoginRepository {
         )
         
         // Token 저장
-        tokenDataSource.saveToken(response)
+        tokenDataSource.saveToken(response.toToken())
+        tokenDataSource.saveProvider(response.provider)
     }
     
     public func login(code: String, codeVerifier: String) async throws {
@@ -36,13 +37,15 @@ public struct DefaultLoginRepository: LoginRepository {
             codeVerifier: codeVerifier
         )
         // Token 저장
-        tokenDataSource.saveToken(response)
+        tokenDataSource.saveToken(response.toToken())
+        tokenDataSource.saveProvider(response.provider)
     }
 
     public func refreshToken(_ refreshToken: String) async throws {
         let response: AuthTokenDTO = try await authDataSource.refresh(refreshToken: refreshToken)
 
         // Token 저장
-        tokenDataSource.saveToken(response)
+        tokenDataSource.saveToken(response.toToken())
+        tokenDataSource.saveProvider(response.provider)
     }
 }

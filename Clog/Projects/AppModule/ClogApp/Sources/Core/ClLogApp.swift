@@ -26,7 +26,6 @@ class ClogApp {
         
         // DI 세팅
         ClogDI.register(assemblies: [
-            Clogger(),
             ClogFont(),
             
             //

@@ -13,13 +13,11 @@ public extension TargetDependency {
     struct SPM {}
 }
 
-public extension TargetDependency.Framework {
-    static let Starlink = TargetDependency.project(target: "Starlink", path: .releativeStarlink(.clog))
-}
+public extension TargetDependency.Framework {}
 
 public extension TargetDependency.Library {
     static let tca = TargetDependency.external(name: "ComposableArchitecture")
-    static let alamofire = TargetDependency.external(name: "Alamofire")
+    static let moya = TargetDependency.external(name: "Moya")
     static let then = TargetDependency.external(name: "Then")
     static let swinject = TargetDependency.external(name: "Swinject")
     static let KakaoSDKUser = TargetDependency.external(name: "KakaoSDKUser")
