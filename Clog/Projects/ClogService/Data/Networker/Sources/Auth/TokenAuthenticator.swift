@@ -52,7 +52,7 @@ final class TokenAuthenticator: Authenticator {
             completion(.failure(NetworkError.tokenEmpty))
             return
         }
-        Task {
+        Task.detached {
             let result = try await refreshAccessToken(refreshToken: refreshToken)
             switch result {
             case .success(let success):

@@ -66,7 +66,7 @@ public extension MoyaProvider {
                 switch result {
                 case .success(let response):
                     
-                    guard (200...300).contains(response.statusCode) else {
+                    guard (200..<300).contains(response.statusCode) else {
                         continuation.resume(throwing: NetworkError.underlying(response))
                         return
                     }
@@ -91,7 +91,7 @@ public extension MoyaProvider {
             self.request(target) { result in
                 switch result {
                 case .success(let response):
-                    guard (200...300).contains(response.statusCode) else {
+                    guard (200..<300).contains(response.statusCode) else {
                         continuation.resume(throwing: NetworkError.underlying(response))
                         return
                     }
