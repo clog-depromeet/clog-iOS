@@ -81,7 +81,7 @@ generate:
 	@tuist generate --no-open
 	
 open_xcode:
-	@open Cllog.xcworkspace
+	@open Clog.xcworkspace
 	
 close_xcode:
 	-@pkill -x Xcode
