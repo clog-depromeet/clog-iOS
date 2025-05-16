@@ -16,6 +16,7 @@ import FolderTabFeature
 import FolderFeature
 import CalendarFeature
 import ReportFeature
+import SocialFeature
 
 // 외부 Module
 import ComposableArchitecture
@@ -51,6 +52,8 @@ public struct MainFeature {
         // Report State
         var reportState: ReportFeature.State = .init()
         
+        var socialState: SocialFeature.State = .init()
+        
         var isRecording: Bool = false
         
         var pushToCalendarDetail: Int?
@@ -60,6 +63,7 @@ public struct MainFeature {
         var tabImages: [Image] = [
             Image.clogUI.folder,
             Image.clogUI.camera,
+            Image.clogUI.person,
             Image.clogUI.report
         ]
     }
@@ -76,6 +80,9 @@ public struct MainFeature {
         
         // RecordTabbar Action
         case recordFeatureAction(RecordHomeFeature.Action)
+        
+        // Social Tab Action
+        case socialTabAction(SocialFeature.Action)
         
         // FolderTabFeature
         case folderTabAction(FolderTabFeature.Action)
@@ -116,6 +123,10 @@ public struct MainFeature {
         
         Scope(state: \.reportState, action: \.reportAction) {
             ReportFeature()
+        }
+        
+        Scope(state: \.socialState, action: \.socialTabAction) {
+            SocialFeature()
         }
         
         Reduce(reducerCore)
