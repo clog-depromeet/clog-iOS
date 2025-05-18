@@ -20,11 +20,17 @@ public struct ProfileEditorFeature {
     @ObservableState
     public struct State: Equatable {
         public var gender: Gender = .male
+        public var nickname: String = ""
+        public var errorText: String = ""
+        public var height: String = ""
+        public var armLength: String = ""
+        public var sns: String = ""
         
         public init() {}
     }
     
-    public enum Action: FeatureAction, ViewAction {
+    public enum Action: FeatureAction, ViewAction, BindableAction {
+        case binding(BindingAction<State>)
         case view(View)
         case inner(InnerAction)
         case async(AsyncAction)
@@ -47,6 +53,8 @@ public struct ProfileEditorFeature {
     }
     
     public var body: some Reducer<State, Action> {
+        BindingReducer()
+        
         Reduce(reducerCore)
     }
 }
@@ -58,6 +66,9 @@ extension ProfileEditorFeature {
         _ action: Action
     ) -> Effect<Action> {
         switch action {
+        case .binding(_):
+            return .none
+            
         case .view(let action):
             return viewCore(&state, action)
             

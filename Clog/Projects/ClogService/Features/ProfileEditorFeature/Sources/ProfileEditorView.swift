@@ -15,7 +15,7 @@ import DesignKit
 
 @ViewAction(for: ProfileEditorFeature.self)
 public struct ProfileEditorView: View {
-    public var store: StoreOf<ProfileEditorFeature>
+    @Bindable public var store: StoreOf<ProfileEditorFeature>
     
     public init(store: StoreOf<ProfileEditorFeature>) {
         self.store = store
@@ -78,11 +78,26 @@ extension ProfileEditorView {
             Text("닉네임")
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
-            ClLogTextInput(
-                placeHolder: "닉네임을 입력해주세요",
-                text: .constant(""),
-                isFocused: .constant(false)
-            )
+            
+            VStack(spacing: 0) {
+                ClLogTextInput(
+                    placeHolder: "닉네임을 입력해주세요",
+                    text: $store.nickname,
+                    isFocused: .constant(false)
+                )
+                
+                HStack {
+                    Text("이미 존재하는 닉네임이에요")
+                        .font(.c1)
+                        .foregroundStyle(Color.clogUI.textFail)
+                    
+                    Spacer()
+                    
+                    Text("\(store.nickname.count)/10")
+                        .font(.c1)
+                        .foregroundStyle(Color.clogUI.gray500)
+                }
+            }
         }
     }
     
@@ -100,9 +115,10 @@ extension ProfileEditorView {
             Text("키")
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
+            
             ClLogTextInput(
                 placeHolder: "cm",
-                text: .constant(""),
+                text: $store.height,
                 isFocused: .constant(false)
             )
         }
@@ -113,9 +129,10 @@ extension ProfileEditorView {
             Text("팔길이")
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
+            
             ClLogTextInput(
                 placeHolder: "cm",
-                text: .constant(""),
+                text: $store.armLength,
                 isFocused: .constant(false)
             )
         }
@@ -156,7 +173,7 @@ extension ProfileEditorView {
                 .foregroundStyle(Color.clogUI.white)
             ClLogTextInput(
                 placeHolder: "인스타그램 링크를 입력해주세요",
-                text: .constant(""),
+                text: $store.armLength,
                 isFocused: .constant(false)
             )
         }
