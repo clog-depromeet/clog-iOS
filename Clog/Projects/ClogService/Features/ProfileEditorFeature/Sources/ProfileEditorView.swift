@@ -129,16 +129,20 @@ extension ProfileEditorView {
             
             HStack(spacing: 7) {
                 GeneralButton("남성") {
-                    
+                    send(.genderTapped(.male))
                 }
-                .style(.normal)
+                .style(
+                    store.gender == .male ? .white : .normal
+                )
                 .disabled(false)
                 .padding(.bottom, 20)
                 
                 GeneralButton("여성") {
-                    
+                    send(.genderTapped(.female))
                 }
-                .style(.normal)
+                .style(
+                    store.gender == .female ? .white : .normal
+                )
                 .disabled(false)
                 .padding(.bottom, 20)
             }

@@ -19,6 +19,7 @@ public struct ProfileEditorFeature {
     
     @ObservableState
     public struct State: Equatable {
+        public var gender: Gender = .male
         
         public init() {}
     }
@@ -33,11 +34,17 @@ public struct ProfileEditorFeature {
     
     public enum View {
         case backButtonTapped
+        case genderTapped(Gender)
     }
     public enum InnerAction { }
     public enum AsyncAction { }
     public enum ScopeAction { }
     public enum DelegateAction { }
+    
+    public enum Gender: Equatable {
+        case male
+        case female
+    }
     
     public var body: some Reducer<State, Action> {
         Reduce(reducerCore)
@@ -75,6 +82,10 @@ extension ProfileEditorFeature {
     ) -> Effect<Action> {
         switch action {
         case .backButtonTapped:
+            return .none
+            
+        case .genderTapped(let gender):
+            state.gender = gender
             return .none
         }
     }
