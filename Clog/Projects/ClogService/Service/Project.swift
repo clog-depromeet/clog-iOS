@@ -12,6 +12,7 @@ let project = Project.configure(
     moduleType: .service(name: "Clog"),
     product: .staticFramework,
     dependencies: [
+        .Features.ProfileEditor.feature,
         .Features.CompletionReport.feature,
         .Features.NickName.feature,
         .Features.Onboarding.feature,
