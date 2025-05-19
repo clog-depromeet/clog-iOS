@@ -26,6 +26,11 @@ public struct ProfileEditorFeature {
         public var armLength: String = ""
         public var sns: String = ""
         
+        public var nicknameFocus: Bool = false
+        public var heightFocus: Bool = false
+        public var armLengthFocus: Bool = false
+        public var snsFocus: Bool = false
+        
         public init() {}
     }
     
@@ -41,6 +46,7 @@ public struct ProfileEditorFeature {
     public enum View {
         case backButtonTapped
         case genderTapped(Gender)
+        case focusOut
     }
     public enum InnerAction { }
     public enum AsyncAction { }
@@ -97,6 +103,13 @@ extension ProfileEditorFeature {
             
         case .genderTapped(let gender):
             state.gender = gender
+            return .none
+            
+        case .focusOut:
+            state.nicknameFocus = false
+            state.heightFocus = false
+            state.armLengthFocus = false
+            state.snsFocus = false
             return .none
         }
     }

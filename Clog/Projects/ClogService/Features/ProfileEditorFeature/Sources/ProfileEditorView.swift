@@ -28,6 +28,9 @@ public struct ProfileEditorView: View {
             Spacer()
             bottomButtonView
         }
+        .onTapGesture {
+            send(.focusOut)
+        }
         .padding(.horizontal, 16)
         .background(Color.clogUI.gray800)
     }
@@ -65,11 +68,26 @@ extension ProfileEditorView {
     }
     
     private var profileImageView: some View {
-        ZStack(alignment: .center) {
-            Image.clogUI.clogLogo
-                .resizable()
-                .frame(width: 90, height: 90)
-                .padding(.vertical, 20)
+        Button {
+            
+        } label: {
+            ZStack(alignment: .bottomTrailing) {
+                Image.clogUI.defaultProfile
+                    .resizable()
+                    .frame(width: 90, height: 90)
+                
+                Image.clogUI.edit
+                    .resizable()
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(Color.clogUI.gray800)
+                    .background(
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 30, height: 30)
+                    )
+                    .offset(x: 4)
+            }
+            .padding(.vertical, 20)
         }
     }
     
@@ -83,11 +101,11 @@ extension ProfileEditorView {
                 ClLogTextInput(
                     placeHolder: "닉네임을 입력해주세요",
                     text: $store.nickname,
-                    isFocused: .constant(false)
+                    isFocused: $store.nicknameFocus
                 )
                 
                 HStack {
-                    Text("이미 존재하는 닉네임이에요")
+                    Text(store.errorText)
                         .font(.c1)
                         .foregroundStyle(Color.clogUI.textFail)
                     
@@ -112,28 +130,30 @@ extension ProfileEditorView {
     
     private var heightView: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("키")
+            Text("키 (cm)")
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
             
             ClLogTextInput(
                 placeHolder: "cm",
+                keyboardType: .numberPad,
                 text: $store.height,
-                isFocused: .constant(false)
+                isFocused: $store.heightFocus
             )
         }
     }
     
     private var armLengthView: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("팔길이")
+            Text("팔길이 (cm)")
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
             
             ClLogTextInput(
                 placeHolder: "cm",
+                keyboardType: .numberPad,
                 text: $store.armLength,
-                isFocused: .constant(false)
+                isFocused: $store.armLengthFocus
             )
         }
     }
@@ -173,8 +193,8 @@ extension ProfileEditorView {
                 .foregroundStyle(Color.clogUI.white)
             ClLogTextInput(
                 placeHolder: "인스타그램 링크를 입력해주세요",
-                text: $store.armLength,
-                isFocused: .constant(false)
+                text: $store.sns,
+                isFocused: $store.snsFocus
             )
         }
     }
