@@ -56,6 +56,8 @@ extension ClogUI where Base == UIImage {
     public static var onBoarding2: UIImage { asset(#function) }
     public static var onBoarding3: UIImage { asset(#function) }
     
+    public static var defaultProfile: UIImage { asset(#function) }
+    
     // Folder
     public static var x: UIImage { asset(#function) }
     public static var dropdownDown: UIImage { asset(#function) }
@@ -116,6 +118,8 @@ extension ClogUI where Base == Image {
     public static var onBoarding1: Image { asset(#function) }
     public static var onBoarding2: Image { asset(#function) }
     public static var onBoarding3: Image { asset(#function) }
+    
+    public static var defaultProfile: Image { asset(#function) }
     
     // Folder
     public static var x: Image { asset(#function) }

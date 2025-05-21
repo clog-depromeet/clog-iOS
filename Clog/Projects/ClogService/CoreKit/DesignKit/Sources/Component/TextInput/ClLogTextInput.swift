@@ -10,18 +10,22 @@ import SwiftUI
 
 public struct ClLogTextInput: View {
     @Binding private var text: String
-    private let placeHolder: String
     @FocusState private var focusState: Bool
     @Binding private var isFocused: Bool
-    private var configuration: TextInputConfiguration
     @State var foregroundColor: Color = Color.clogUI.white
+    
+    private let placeHolder: String
+    private var configuration: TextInputConfiguration
+    private var keyboardType: UIKeyboardType
     
     public init(
         placeHolder: String,
+        keyboardType: UIKeyboardType = .default,
         text: Binding<String>,
         isFocused: Binding<Bool>
     ) {
         self.placeHolder = placeHolder
+        self.keyboardType = keyboardType
         self._isFocused = isFocused
         self._text = text
         self.configuration = TextInputConfiguration(
@@ -33,6 +37,7 @@ public struct ClLogTextInput: View {
     
     fileprivate init(
         _ placeHolder: String,
+        _ keyboardType: UIKeyboardType,
         _ text: Binding<String>,
         _ configuration: TextInputConfiguration,
         _ isFocused: Binding<Bool>
@@ -41,6 +46,7 @@ public struct ClLogTextInput: View {
         self._text = text
         self._isFocused = isFocused
         self.configuration = configuration
+        self.keyboardType = keyboardType
     }
     
     public var body: some View {
@@ -62,6 +68,7 @@ extension ClLogTextInput {
                     .tint(configuration.state.foregroundColor)
                     .foregroundColor(foregroundColor)
                     .focused($focusState)
+                    .keyboardType(keyboardType)
             case .editor:
                 // TextEditor
                 TextEditor(text: $text)
@@ -113,7 +120,13 @@ extension ClLogTextInput {
         
         newConfig.state = state
         
-        return ClLogTextInput(self.placeHolder ,$text, newConfig, $isFocused)
+        return ClLogTextInput(
+            self.placeHolder,
+            self.keyboardType,
+            $text,
+            newConfig,
+            $isFocused
+        )
     }
     
     public func type(_ type: TextInputType) -> ClLogTextInput {
@@ -121,7 +134,13 @@ extension ClLogTextInput {
         
         newConfig.type = type
         
-        return ClLogTextInput(self.placeHolder ,$text, newConfig, $isFocused)
+        return ClLogTextInput(
+            self.placeHolder,
+            self.keyboardType,
+            $text,
+            newConfig,
+            $isFocused
+        )
     }
     
     public func background(_ type: TextInputBackground) -> ClLogTextInput {
@@ -129,7 +148,13 @@ extension ClLogTextInput {
         
         newConfig.background = type
         
-        return ClLogTextInput(self.placeHolder ,$text, newConfig, $isFocused)
+        return ClLogTextInput(
+            self.placeHolder,
+            self.keyboardType,
+            $text,
+            newConfig,
+            $isFocused
+        )
     }
 }
 
