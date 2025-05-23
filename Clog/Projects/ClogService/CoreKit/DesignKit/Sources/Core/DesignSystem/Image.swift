@@ -100,6 +100,15 @@ extension ClogUI where Base == Image {
     public static var setting: Image { asset(#function) }
     public static var tag: Image { asset(#function) }
     public static var cut: Image { asset(#function) }
+    public static var icn_dot_vertical: Image { asset(#function) }
+    public static var icn_edit: Image { asset(#function) }
+    public static var icn_video_none: Image { asset(#function) }
+    public static var icn_Instagramlogo: Image { asset(#function) }
+    public static var magnifier: Image { asset(#function) }
+    public static var userprofile: Image { asset(#function) }
+    public static var icn_height: Image { asset(#function) }
+    public static var icn_arm_length: Image { asset(#function) }
+    public static var status: Image { asset(#function) }
     
     // Edit
     public static var playSmall: Image { asset(#function) }
