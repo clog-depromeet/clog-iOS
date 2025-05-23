@@ -9,6 +9,7 @@ import ProjectDescription
 
 public extension TargetDependency {
     struct Features {
+        public struct Social {}
         public struct ProfileEditor {}
         public struct CompletionReport {}
         public struct NickName {}
@@ -220,6 +221,20 @@ public extension TargetDependency.Features.NickName {
 
 public extension TargetDependency.Features.CompletionReport {
     static let name = "CompletionReport"
+    
+    static let feature = TargetDependency.Features.project(
+        name: "\(name)Feature",
+        service: .clog
+    )
+    
+    static let interface = TargetDependency.project(
+        target: "\(name)FeatureInterface",
+        path: .relativeToFeature(path: "\(name)Feature", service: .clog)
+    )
+}
+
+public extension TargetDependency.Features.Social {
+    static let name = "Social"
     
     static let feature = TargetDependency.Features.project(
         name: "\(name)Feature",
