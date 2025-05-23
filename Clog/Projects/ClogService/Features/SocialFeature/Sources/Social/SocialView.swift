@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 import ComposableArchitecture
-
 import DesignKit
+import SocialFeatureInterface
 
 public struct SocialView: View {
     
