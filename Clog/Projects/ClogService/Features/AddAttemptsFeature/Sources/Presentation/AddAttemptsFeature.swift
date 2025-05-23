@@ -11,13 +11,16 @@ import Foundation
 import Core
 
 import ComposableArchitecture
+import _PhotosUI_SwiftUI
 
 @Reducer
 public struct AddAttemptsFeature {
     
     @ObservableState
     public struct State: Equatable {
-        
+        var videoSelections: [PhotosPickerItem] = []
+        // FIXME: showPhotoPicker 추가시 EXC_BAD_ACCESS 발생
+//        var showPhotoPicker: Bool = false
         public init() {}
     }
     
@@ -31,7 +34,8 @@ public struct AddAttemptsFeature {
     }
     
     public enum View {
-        
+        case onAppear
+        case videoSelectionChanged([PhotosPickerItem])
     }
     
     public enum InnerAction { }
@@ -39,6 +43,42 @@ public struct AddAttemptsFeature {
     public enum ScopeAction { }
     public enum DelegateAction { }
     
+    public var body: some Reducer<State, Action> {
+        BindingReducer()
+        
+        Reduce(reducerCore)
+    }
     
     public init() {}
+}
+
+extension AddAttemptsFeature {
+    func reducerCore(
+        _ state: inout State,
+        _ action: Action
+    ) -> Effect<Action> {
+        
+        switch action {
+        case .binding:
+            return .none
+            
+        case .view(let action):
+            return viewCore(&state, action)
+        }
+    }
+    
+    func viewCore(
+        _ state: inout State,
+        _ action: View
+    ) -> Effect<Action> {
+        switch action {
+        case .onAppear:
+//            state.showPhotoPicker = true
+            return .none
+            
+        case let .videoSelectionChanged(selections):
+            state.videoSelections = selections
+            return .none
+        }
+    }
 }
