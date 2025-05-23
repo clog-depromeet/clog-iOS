@@ -20,6 +20,7 @@ import FolderFeature
 import CalendarFeature
 import ReportFeature
 import DesignKit
+import SocialFeature
 
 /// 구현부
 public struct MainView: View {
@@ -64,7 +65,7 @@ private extension MainView {
     var tabView: some View {
         // 메인 화면 전체
         TabView(selection: $selectedTab) {
-            ForEach(Array([AnyView(folderTabbarView), AnyView(videoTabbarView), AnyView(reportTabbarView)].enumerated()), id: \.offset) { index, view in
+            ForEach(Array([AnyView(folderTabbarView), AnyView(videoTabbarView), AnyView(socialTabbarView), AnyView(reportTabbarView)].enumerated()), id: \.offset) { index, view in
                 view
                     .tabItem {
                         store.tabImages[index]
@@ -120,6 +121,15 @@ private extension MainView {
     var reportTabbarView: some View {
         ReportView(
             store: store.scope(state: \.reportState, action: \.reportAction)
+        )
+    }
+}
+
+private extension MainView {
+    
+    var socialTabbarView: some View {
+        SocialView(
+            store: store.scope(state: \.socialState, action: \.socialTabAction)
         )
     }
 }
