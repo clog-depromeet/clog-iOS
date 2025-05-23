@@ -56,6 +56,8 @@ extension ClogUI where Base == UIImage {
     public static var onBoarding2: UIImage { asset(#function) }
     public static var onBoarding3: UIImage { asset(#function) }
     
+    public static var defaultProfile: UIImage { asset(#function) }
+    
     // Folder
     public static var x: UIImage { asset(#function) }
     public static var dropdownDown: UIImage { asset(#function) }
@@ -81,6 +83,7 @@ extension ClogUI where Base == Image {
     public static var folder: Image { asset(#function) }
     public static var list: Image { asset(#function) }
     public static var location: Image { asset(#function) }
+    public static var person: Image { asset(#function) }
     public static var report: Image { asset(#function) }
     public static var right: Image { asset(#function) }
     public static var share: Image { asset(#function) }
@@ -97,6 +100,15 @@ extension ClogUI where Base == Image {
     public static var setting: Image { asset(#function) }
     public static var tag: Image { asset(#function) }
     public static var cut: Image { asset(#function) }
+    public static var icn_dot_vertical: Image { asset(#function) }
+    public static var icn_edit: Image { asset(#function) }
+    public static var icn_video_none: Image { asset(#function) }
+    public static var icn_Instagramlogo: Image { asset(#function) }
+    public static var magnifier: Image { asset(#function) }
+    public static var userprofile: Image { asset(#function) }
+    public static var icn_height: Image { asset(#function) }
+    public static var icn_arm_length: Image { asset(#function) }
+    public static var status: Image { asset(#function) }
     
     // Edit
     public static var playSmall: Image { asset(#function) }
@@ -116,6 +128,8 @@ extension ClogUI where Base == Image {
     public static var onBoarding1: Image { asset(#function) }
     public static var onBoarding2: Image { asset(#function) }
     public static var onBoarding3: Image { asset(#function) }
+    
+    public static var defaultProfile: Image { asset(#function) }
     
     // Folder
     public static var x: Image { asset(#function) }

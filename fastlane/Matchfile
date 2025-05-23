@@ -1,4 +1,4 @@
-git_url("https://HyeonJunKKang@github.com/clog-depromeet/clog-iOS-Certificates.git")
+git_url("https://github.com/clog-depromeet/clog-iOS-Certificates.git")
 
 storage_mode("git")
 
