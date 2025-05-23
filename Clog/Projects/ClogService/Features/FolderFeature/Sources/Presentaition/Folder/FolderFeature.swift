@@ -37,7 +37,6 @@ public struct FolderFeature {
         case failChipTapped
         case gradeChipTapped
         case cragChipTapped
-        case addAttemptTapped
         
         case getFilterableInfo(_ data: FilterableAttemptInfo)
         case didSelectCrag(_ crag: Crag)
@@ -46,6 +45,7 @@ public struct FolderFeature {
         
         case setViewState(_ state: ViewState)
         case moveToAttempt(_ attemptId: Int)
+        case moveToAddAttempts
         case fail
     }
     
@@ -71,10 +71,6 @@ public struct FolderFeature {
             case .cragChipTapped:
                 return handleCragChipTap(state: &state)
                 
-            case .addAttemptTapped:
-                // TODO: 갤러리 (영상 연결)
-                return .none
-                
             case .getFilterableInfo(let info):
                 state.filterableAttemptInfo = info
                 return .none
@@ -93,7 +89,7 @@ public struct FolderFeature {
                 state.attempts = attempts
                 return .none
                 
-            case .moveToAttempt, .fail:
+            case .moveToAttempt, .moveToAddAttempts, .fail:
                 return .none
             }
         }

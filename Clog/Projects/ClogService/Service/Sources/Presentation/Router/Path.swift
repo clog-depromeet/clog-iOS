@@ -12,6 +12,7 @@ import CalendarFeature
 import SettingFeature
 import FolderFeature
 import CompletionReportFeature
+import AddAttemptsFeature
 import Core
 
 @Reducer
@@ -20,5 +21,6 @@ public enum Path {
     case setting(SettingFeature)
     case webView(WebViewFeature)
     case attempt(AttemptFeature)
+    case addAttempts(AddAttemptsFeature)
     case completionReport(CompletionReportFeature)
 }

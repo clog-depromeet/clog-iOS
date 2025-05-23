@@ -14,6 +14,7 @@ import SettingFeature
 import FolderFeature
 import EditFeature
 import CompletionReportFeature
+import AddAttemptsFeature
 import Core
 import DesignKit
 
@@ -43,6 +44,9 @@ public struct RouterView: View {
                     .navigationBarBackButtonHidden(true)
             case .attempt(let store):
                 AttemptView(store: store)
+                    .navigationBarBackButtonHidden(true)
+            case .addAttempts(let store):
+                AddAttemptsView(store: store)
                     .navigationBarBackButtonHidden(true)
             case .webView(let store):
                 WebView(store: store)

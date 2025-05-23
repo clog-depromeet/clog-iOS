@@ -44,7 +44,7 @@ public struct FolderView: ViewProtocol {
                 }
             
             Button {
-                store.send(.addAttemptTapped)
+                store.send(.moveToAddAttempts)
             } label: {
                 ZStack {
                     Circle()
