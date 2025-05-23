@@ -14,6 +14,7 @@ let project = Project.configure(
     dependencies: [
         .Features.ProfileEditor.feature,
         .Features.Social.feature,
+        .Features.ProfileEditor.feature,
         .Features.CompletionReport.feature,
         .Features.NickName.feature,
         .Features.Onboarding.feature,
