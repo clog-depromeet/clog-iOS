@@ -81,6 +81,7 @@ extension ClogUI where Base == Image {
     public static var folder: Image { asset(#function) }
     public static var list: Image { asset(#function) }
     public static var location: Image { asset(#function) }
+    public static var person: Image { asset(#function) }
     public static var report: Image { asset(#function) }
     public static var right: Image { asset(#function) }
     public static var share: Image { asset(#function) }
