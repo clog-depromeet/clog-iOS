@@ -12,21 +12,25 @@ import ComposableArchitecture
 @Reducer
 public struct SocialFeature {
     
+    @ObservableState
     public struct State: Equatable {
+        
+        var socialTabState: SocialTabFeature.State = .init()
         
         public init() { }
         
     }
     
-    public enum Action { }
+    public enum Action {
+        case socialTabAction(SocialTabFeature.Action)
+    }
     
     public init() {}
     
     public var body: some ReducerOf<Self> {
-        
-        Reduce { state, action in
-            return .none
+        Scope(state: \.socialTabState, action: \.socialTabAction) {
+            SocialTabFeature()
         }
     }
-    
 }
+
