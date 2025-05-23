@@ -8,6 +8,7 @@
 
 import Foundation
 import ComposableArchitecture
+import SocialFeatureInterface
 
 @Reducer
 public struct SocialFeature {
