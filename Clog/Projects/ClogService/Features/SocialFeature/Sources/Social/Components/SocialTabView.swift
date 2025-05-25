@@ -11,6 +11,7 @@ import ComposableArchitecture
 import DesignKit
 import Core
 import SocialFeatureInterface
+import SocialDomain
 
 @ViewAction(for: SocialTabFeature.self)
 public struct SocialTabView: View {
@@ -25,11 +26,23 @@ public struct SocialTabView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
+            
             followFollowingButtonView
+            
             TabView(selection: $store.selectedTab) {
-               
+                
+                makeSocialListView(
+                    [],
+                    tab: .follower
+                )
+                
+                makeSocialListView(
+                    store.socialFriends.filter { $0.isFollowing },
+                    tab: .following
+                )
             }
         }
+        
     }
     
     private var followFollowingButtonView: some View {
@@ -84,6 +97,39 @@ public struct SocialTabView: View {
                     : .clear
                 )
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func makeSocialListView(
+        _ friends: [SocialFriend],
+        tab: SocialTabFeature.State.CurrentTab
+    ) -> some View {
+        if friends.isEmpty {
+            VStack {
+                Image.clogUI.icn_video_none
+                    .resizable()
+                    .frame(60)
+                
+                Text(tab.emptyListDescription)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color.clogUI.gray500)
+                    .font(.h5)
+                
+                Spacer()
+            }
+            .padding(.top, 69)
+            .frame(maxWidth: .infinity)
+            .background(Color.clogUI.gray800.ignoresSafeArea())
+            .tag(tab)
+        } else {
+            ScrollView {
+                ForEach(friends) { friend in
+                    SocialFriendListCell(friend: friend)
+                }
+            }
+            .background(Color.clogUI.gray800.ignoresSafeArea())
+            .tag(tab)
         }
     }
 }
