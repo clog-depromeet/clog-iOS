@@ -19,6 +19,7 @@ public struct AddAttemptsFeature {
     @ObservableState
     public struct State: Equatable {
         var videoSelections: [PhotosPickerItem] = []
+        var loadedVideos: [VideoAssetMetadata] = []
         // FIXME: showPhotoPicker 추가시 EXC_BAD_ACCESS 발생
 //        var showPhotoPicker: Bool = false
         public init() {}
@@ -38,8 +39,11 @@ public struct AddAttemptsFeature {
         case videoSelectionChanged([PhotosPickerItem])
     }
     
-    public enum InnerAction { }
-    public enum AsyncAction { }
+    public enum InnerAction {
+        case didLoadVideos([VideoAssetMetadata])
+    }
+    
+    public enum AsyncAction {}
     public enum ScopeAction { }
     public enum DelegateAction { }
     
@@ -64,6 +68,9 @@ extension AddAttemptsFeature {
             
         case .view(let action):
             return viewCore(&state, action)
+            
+        case .inner(let action):
+            return innerCore(&state, action)
         }
     }
     
@@ -73,11 +80,41 @@ extension AddAttemptsFeature {
     ) -> Effect<Action> {
         switch action {
         case .onAppear:
-//            state.showPhotoPicker = true
+            //            state.showPhotoPicker = true
             return .none
             
         case let .videoSelectionChanged(selections):
             state.videoSelections = selections
+            return .run { send in
+                let loaded: [VideoAssetMetadata] = try await withThrowingTaskGroup(of: VideoAssetMetadata?.self) { group in
+                    for item in selections {
+                        group.addTask {
+                            try await VideoAssetLoader.loadVideoMetadata(from: item)
+                        }
+                    }
+
+                    var results: [VideoAssetMetadata] = []
+                    for try await result in group {
+                        if let result = result {
+                            results.append(result)
+                        }
+                    }
+
+                    return results
+                }
+                await send(.inner(.didLoadVideos(loaded)))
+            }
+        }
+    }
+    
+    func innerCore(
+        _ state: inout State,
+        _ action: InnerAction
+    ) -> Effect<Action> {
+        
+        switch action {
+        case .didLoadVideos(let videos):
+            state.loadedVideos = videos
             return .none
         }
     }
