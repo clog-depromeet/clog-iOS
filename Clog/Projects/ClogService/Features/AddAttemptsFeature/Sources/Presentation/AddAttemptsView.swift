@@ -41,8 +41,10 @@ public struct AddAttemptsView: View {
 
 private extension AddAttemptsView {
     private func makeBodyView() -> some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             makeAppBar()
+            
+            Spacer().frame(height: 20)
             
             ScrollView {
                 selectedCragNameView()
@@ -50,6 +52,7 @@ private extension AddAttemptsView {
             }
             .padding(.horizontal, 16)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private func makeAppBar() -> some View {
@@ -89,6 +92,7 @@ private extension AddAttemptsView {
                 .font(.h2)
                 .foregroundStyle(Color.clogUI.gray10)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func makeSelectedVideoView() -> some View {
