@@ -18,6 +18,7 @@ public struct AddAttemptsView: View {
     @Bindable public var store: StoreOf<AddAttemptsFeature>
     @State private var showPhotoPicker: Bool = false // TODO: Reducer로 옮기기
     
+    private let size = (UIScreen.main.bounds.width / 2) - 20
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     public var body: some View {
@@ -47,6 +48,7 @@ private extension AddAttemptsView {
                 selectedCragNameView()
                 makeSelectedVideoView()
             }
+            .padding(.horizontal, 16)
         }
     }
     
@@ -92,7 +94,11 @@ private extension AddAttemptsView {
     private func makeSelectedVideoView() -> some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2)) {
             ForEach(store.loadedVideos) { video in
-                VideoThumbnailView(url: video.url, duration: video.duration)
+                VideoThumbnailView(
+                    url: video.url,
+                    timeString: video.formattedDuration,
+                    size: size
+                )
             }
         }
     }
