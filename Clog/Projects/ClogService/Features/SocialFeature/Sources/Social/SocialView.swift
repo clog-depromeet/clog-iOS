@@ -41,7 +41,7 @@ extension SocialView {
             
             makeFollowersFollowingView()
         }
-        .background(Color.clogUI.gray700)
+        .background(Color.clogUI.gray800)
     }
     
     private func makeAppBar() -> some View {

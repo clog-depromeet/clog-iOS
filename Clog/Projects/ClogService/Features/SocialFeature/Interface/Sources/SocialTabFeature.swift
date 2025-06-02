@@ -8,6 +8,7 @@
 
 import ComposableArchitecture
 import Core
+import SocialDomain
 
 @Reducer
 public struct SocialTabFeature {
@@ -17,7 +18,7 @@ public struct SocialTabFeature {
     @ObservableState
     public struct State: Equatable {
         public var selectedTab: CurrentTab = .follower
-        
+        public var socialFriends: [SocialFriend] = SocialFriend.dummy()
         public init() { }
     }
     
@@ -67,5 +68,14 @@ public extension SocialTabFeature.State {
     enum CurrentTab: String, Hashable {
         case follower = "팔로워"
         case following = "팔로잉"
+        
+        public var emptyListDescription: String {
+            switch self {
+            case .follower:
+                "아직 나를 팔로우한 친구가 없어요.\n지금 QR코드를 공유하고, 나를 팔로우할 친구를 만나보세요!"
+            case .following:
+                "관심 있는 친구를 팔로우 하면\n더 다양한 활동을 볼 수 있어요."
+            }
+        }
     }
 }
