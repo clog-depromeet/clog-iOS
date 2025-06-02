@@ -43,23 +43,9 @@ public struct FolderView: ViewProtocol {
                         .padding(16)
                 }
             
-            Button {
+            FloatingActionButton(image: Image.clogUI.gallery) {
                 store.send(.moveToAddAttempts)
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(Color.clogUI.primary)
-                        .frame(width: 58, height: 58)
-                    
-                    Image.clogUI.gallery
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(ClogUI.gray800)
-                }
             }
-            .padding(.trailing, 16)
-            .padding(.bottom, 18)
         }
     }
 }
