@@ -32,15 +32,14 @@ public final class DefaultAttemptDataSource: AttemptDataSource {
     public func attempts(
         _ request: AttemptFilterRequestDTO
     ) async throws -> [FolderAttemptResponseDTO] {
-        let response: FolderAttemptResponseType = try await provider.request(
+        let response: BaseResponseDTO<FolderResponseDTO> = try await provider.request(
             .attempts(request: request)
         )
-        
         guard let data = response.data else {
             throw NetworkError.decoding
         }
         
-        return data
+        return data.attempts
     }
     
     public func attempt(_ attemptId: Int) async throws -> DetailAttemptResponseDTO {
