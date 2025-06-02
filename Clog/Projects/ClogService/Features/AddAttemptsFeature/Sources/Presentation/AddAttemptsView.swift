@@ -16,7 +16,6 @@ import ComposableArchitecture
 @ViewAction(for: AddAttemptsFeature.self)
 public struct AddAttemptsView: View {
     @Bindable public var store: StoreOf<AddAttemptsFeature>
-    @State private var showPhotoPicker: Bool = false // TODO: Reducer로 옮기기
     
     private let size = (UIScreen.main.bounds.width / 2) - 20
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
@@ -25,11 +24,9 @@ public struct AddAttemptsView: View {
         makeBodyView()
             .background(Color.clogUI.gray800)
             .onAppear {
-                self.showPhotoPicker = true
                 send(.onAppear)
             }
-            .fullScreenCover(isPresented: $showPhotoPicker) {
-                //            .fullScreenCover(isPresented: $store.showPhotoPicker) {
+            .fullScreenCover(isPresented: $store.showPhotoPicker) {
                 makePhotoPickerView()
             }
     }

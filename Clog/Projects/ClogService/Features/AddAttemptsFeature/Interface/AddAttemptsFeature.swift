@@ -20,8 +20,7 @@ public struct AddAttemptsFeature {
     public struct State: Equatable {
         var videoSelections: [PhotosPickerItem] = []
         var loadedVideos: [VideoAssetMetadata] = []
-        // FIXME: showPhotoPicker 추가시 EXC_BAD_ACCESS 발생
-//        var showPhotoPicker: Bool = false
+        var showPhotoPicker: Bool = false
         public init() {}
     }
     
@@ -80,7 +79,7 @@ extension AddAttemptsFeature {
     ) -> Effect<Action> {
         switch action {
         case .onAppear:
-            //            state.showPhotoPicker = true
+            state.showPhotoPicker = true
             return .none
             
         case let .videoSelectionChanged(selections):
