@@ -1,12 +1,20 @@
 import SwiftUI
 
+import AddAttemptsFeature
+import AddAttemptsFeatureInterface
+
 @main
-struct App: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+struct AddAttemptsApp: App {
     var body: some Scene {
         WindowGroup {
-            
+            AddAttemptsView(
+                store: .init(
+                    initialState: AddAttemptsFeature.State(),
+                    reducer: {
+                        AddAttemptsFeature()
+                    }
+                )
+            )
         }
     }
 }
