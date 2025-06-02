@@ -13,4 +13,12 @@ public struct VideoAssetMetadata: Equatable, Identifiable {
     public let url: URL
     public let duration: TimeInterval
     public let creationDate: Date?
+    
+    public var formattedDuration: String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = duration >= 3600 ? [.hour, .minute, .second] : [.minute, .second]
+        formatter.unitsStyle = .positional
+        formatter.zeroFormattingBehavior = [.pad]
+        return formatter.string(from: duration) ?? "00:00"
+    }
 }

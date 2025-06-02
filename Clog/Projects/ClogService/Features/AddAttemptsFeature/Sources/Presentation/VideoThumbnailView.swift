@@ -9,23 +9,43 @@
 import SwiftUI
 import AVFoundation
 
+import DesignKit
+
 struct VideoThumbnailView: View {
     let url: URL
-    let duration: TimeInterval
+    let timeString: String
+    let size: CGFloat
 
     @State private var thumbnail: UIImage?
 
     var body: some View {
-        VStack {
-            if let thumbnail {
-                Image(uiImage: thumbnail)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 200)
-            } else {
-                ProgressView()
+        ZStack(alignment: .topTrailing) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.clogUI.gray600)
+                if let thumbnail {
+                    Image(uiImage: thumbnail)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    ProgressView()
+                        .frame(width: 60, height: 60)
+                }
             }
-            Text("길이: \(Int(duration))초")
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            
+            Text(timeString)
+                .font(.c1)
+                .foregroundStyle(Color.clogUI.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .foregroundStyle(Color.clogUI.gray700.opacity(0.7))
+                )
+                .padding([.trailing, .top], 8)
+            
         }
         .task {
             thumbnail = generateVideoThumbnail(from: url)
