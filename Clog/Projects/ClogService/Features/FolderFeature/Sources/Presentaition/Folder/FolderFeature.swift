@@ -45,6 +45,7 @@ public struct FolderFeature {
         
         case setViewState(_ state: ViewState)
         case moveToAttempt(_ attemptId: Int)
+        case moveToAddAttempts
         case fail
     }
     
@@ -88,7 +89,7 @@ public struct FolderFeature {
                 state.attempts = attempts
                 return .none
                 
-            case .moveToAttempt, .fail:
+            case .moveToAttempt, .moveToAddAttempts, .fail:
                 return .none
             }
         }

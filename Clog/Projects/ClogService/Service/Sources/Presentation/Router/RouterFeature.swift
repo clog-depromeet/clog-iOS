@@ -14,6 +14,7 @@ import SettingFeature
 import FolderFeature
 import EditFeature
 import CompletionReportFeature
+import AddAttemptsFeature
 import Core
 import DesignKit
 
@@ -129,6 +130,10 @@ extension RouterFeature {
             
         case let .mainAction(.routerAction(.pushToAttempt(attemptId))):
             state.path.append(.attempt(AttemptFeature.State(attemptId: attemptId)))
+            return .none
+            
+        case .mainAction(.routerAction(.pushToAddAttempts)):
+            state.path.append(.addAttempts(AddAttemptsFeature.State()))
             return .none
             
         case let .mainAction(.routerAction(.presentToEdit(url, stampTimeList))):

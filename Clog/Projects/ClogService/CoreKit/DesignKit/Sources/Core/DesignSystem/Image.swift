@@ -45,6 +45,7 @@ extension ClogUI where Base == UIImage {
     public static var tag: UIImage { asset(#function) }
     public static var cut: UIImage { asset(#function) }
     public static var edit: UIImage { asset(#function) }
+    public static var gallery: UIImage { asset(#function) }
     
     public static var reportAttempt: UIImage { asset(#function) }
     public static var reportCrag: UIImage { asset(#function) }
@@ -100,6 +101,7 @@ extension ClogUI where Base == Image {
     public static var setting: Image { asset(#function) }
     public static var tag: Image { asset(#function) }
     public static var cut: Image { asset(#function) }
+    public static var gallery: Image { asset(#function) }
     
     // Edit
     public static var playSmall: Image { asset(#function) }
