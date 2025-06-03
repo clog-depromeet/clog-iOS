@@ -51,6 +51,7 @@ public struct AddAttemptsFeature {
         case videoSelectionChanged([PhotosPickerItem])
         case photoPickerDismissed
         case cragBottomSheet(CragBottomSheetAction)
+        case didTapCragTitleView
         
         public enum CragBottomSheetAction {
             case didTapSaveButton(DesignCrag)
@@ -133,6 +134,10 @@ extension AddAttemptsFeature {
             
         case .cragBottomSheet(let action):
             return handleCragBottomSheetViewAction(&state, action)
+            
+        case .didTapCragTitleView:
+            state.nearByCragState.showCragBottomSheet = true
+            return .none
         }
         
     }

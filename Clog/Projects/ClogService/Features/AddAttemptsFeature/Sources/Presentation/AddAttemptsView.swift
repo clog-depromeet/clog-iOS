@@ -129,6 +129,9 @@ private extension AddAttemptsView {
                 .foregroundStyle(color)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onTapGesture {
+            send(.didTapCragTitleView)
+        }
     }
     
     private func makeSelectedVideoView() -> some View {
