@@ -149,6 +149,7 @@ extension AddAttemptsFeature {
                 name: crag.name,
                 address: crag.address
             )
+            state.nearByCragState.showCragBottomSheet = false
             state.nearByCragState.selectedCrag = selectedCrag
             return .none
             
