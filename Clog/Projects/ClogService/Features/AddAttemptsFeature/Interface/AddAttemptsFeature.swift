@@ -9,6 +9,9 @@
 import Foundation
 
 import Core
+import DesignKit
+import Shared
+import Domain
 
 import ComposableArchitecture
 import _PhotosUI_SwiftUI
@@ -16,12 +19,22 @@ import _PhotosUI_SwiftUI
 @Reducer
 public struct AddAttemptsFeature {
     
+    @Dependency(\.nearByCragUseCase) private var cragUseCase
+    
     @ObservableState
     public struct State: Equatable {
         var videoSelections: [PhotosPickerItem] = []
         var loadedVideos: [VideoAssetMetadata] = []
         var showPhotoPicker: Bool = false
+        var nearByCragState = CragBottomSheetState()
+        
         public init() {}
+        
+        public struct CragBottomSheetState: Equatable {
+            var showCragBottomSheet = false
+            var crags: [DesignCrag] = []
+            var selectedCrag: Crag? = nil
+        }
     }
     
     public enum Action: FeatureAction, ViewAction, BindableAction {
@@ -36,13 +49,30 @@ public struct AddAttemptsFeature {
     public enum View {
         case onAppear
         case videoSelectionChanged([PhotosPickerItem])
+        case photoPickerDismissed
+        case cragBottomSheet(CragBottomSheetAction)
+        
+        public enum CragBottomSheetAction {
+            case didTapSaveButton(DesignCrag)
+            case didTapSkipButton
+            case didNearEnd
+            case didChangeSearchText(String)
+        }
     }
     
     public enum InnerAction {
         case didLoadVideos([VideoAssetMetadata])
     }
     
-    public enum AsyncAction {}
+    public enum AsyncAction {
+        case cragBottomSheet(CragBottomSheetAction)
+        
+        public enum CragBottomSheetAction {
+            case fetch(_ crags: [Crag])
+            case fetchMore(_ crags: [Crag])
+        }
+    }
+    
     public enum ScopeAction { }
     public enum DelegateAction { }
     
@@ -55,6 +85,7 @@ public struct AddAttemptsFeature {
     public init() {}
 }
 
+// MARK: Reducer Core
 extension AddAttemptsFeature {
     func reducerCore(
         _ state: inout State,
@@ -70,8 +101,15 @@ extension AddAttemptsFeature {
             
         case .inner(let action):
             return innerCore(&state, action)
+            
+        case .async(let action):
+            return asyncCore(&state, action)
         }
     }
+}
+
+// MARK: ViewCore
+extension AddAttemptsFeature {
     
     func viewCore(
         _ state: inout State,
@@ -85,27 +123,68 @@ extension AddAttemptsFeature {
         case let .videoSelectionChanged(selections):
             state.videoSelections = selections
             return .run { send in
-                let loaded: [VideoAssetMetadata] = try await withThrowingTaskGroup(of: VideoAssetMetadata?.self) { group in
-                    for item in selections {
-                        group.addTask {
-                            try await VideoAssetLoader.loadVideoMetadata(from: item)
-                        }
-                    }
-
-                    var results: [VideoAssetMetadata] = []
-                    for try await result in group {
-                        if let result = result {
-                            results.append(result)
-                        }
-                    }
-
-                    return results
-                }
-                await send(.inner(.didLoadVideos(loaded)))
+                let videos = try await loadVideoMetadataList(from: selections)
+                await send(.inner(.didLoadVideos(videos)))
             }
+            
+        case .photoPickerDismissed:
+            state.nearByCragState.showCragBottomSheet = true
+            return fetchNearByCrags()
+            
+        case .cragBottomSheet(let action):
+            return handleCragBottomSheetViewAction(&state, action)
+        }
+        
+    }
+    
+    private func handleCragBottomSheetViewAction(
+        _ state: inout State,
+        _ action: View.CragBottomSheetAction
+    ) -> Effect<Action> {
+        switch action {
+            
+        case .didTapSaveButton(let crag):
+            let selectedCrag = Crag(
+                id: crag.id,
+                name: crag.name,
+                address: crag.address
+            )
+            state.nearByCragState.selectedCrag = selectedCrag
+            return .none
+            
+        case .didTapSkipButton:
+            state.nearByCragState.showCragBottomSheet = false
+            return .none
+            
+        case .didNearEnd:
+            return fetchMoreNearByCrags()
+            
+        case .didChangeSearchText(_):
+            return .none
         }
     }
     
+    private func loadVideoMetadataList(from selections: [PhotosPickerItem]) async throws -> [VideoAssetMetadata] {
+        return try await withThrowingTaskGroup(of: VideoAssetMetadata?.self) { group in
+            var results = [VideoAssetMetadata]()
+            for item in selections {
+                group.addTask {
+                    try await VideoAssetLoader.loadVideoMetadata(from: item)
+                }
+            }
+            
+            for try await result in group {
+                if let result = result {
+                    results.append(result)
+                }
+            }
+            
+            return results
+        }
+    }
+}
+
+extension AddAttemptsFeature {
     func innerCore(
         _ state: inout State,
         _ action: InnerAction
@@ -115,6 +194,53 @@ extension AddAttemptsFeature {
         case .didLoadVideos(let videos):
             state.loadedVideos = videos
             return .none
+        }
+    }
+}
+
+// MARK: Async Core
+extension AddAttemptsFeature {
+    func asyncCore(
+        _ state: inout State,
+        _ action: AsyncAction
+    ) -> Effect<Action> {
+        switch action {
+        case .cragBottomSheet(let action):
+            switch action {
+            case .fetch(let crags):
+                state.nearByCragState.crags = crags.map {
+                    DesignCrag(id: $0.id, name: $0.name, address: $0.address)
+                }
+                return .none
+            case .fetchMore(let crags):
+                let crags = crags.map {
+                    DesignCrag(id: $0.id, name: $0.name, address: $0.address)
+                }
+                state.nearByCragState.crags.append(contentsOf: crags)
+                return .none
+            }
+        }
+    }
+    
+    private func fetchNearByCrags(keyword: String = "") -> Effect<Action> {
+        return .run { send in
+            do {
+                let crags = try await cragUseCase.fetch(keyword: keyword, location: nil)
+                await send(.async(.cragBottomSheet(.fetch(crags))))
+            } catch {
+                debugPrint(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func fetchMoreNearByCrags() -> Effect<Action> {
+        .run { send in
+            do {
+                let crags = try await cragUseCase.next()
+                await send(.async(.cragBottomSheet(.fetchMore(crags))))
+            } catch {
+                debugPrint(error.localizedDescription)
+            }
         }
     }
 }

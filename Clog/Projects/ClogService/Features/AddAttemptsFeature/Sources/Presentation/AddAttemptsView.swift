@@ -26,9 +26,33 @@ public struct AddAttemptsView: View {
             .onAppear {
                 send(.onAppear)
             }
-            .fullScreenCover(isPresented: $store.showPhotoPicker) {
+            .fullScreenCover(
+                isPresented: $store.showPhotoPicker,
+                onDismiss: {
+                    send(.photoPickerDismissed)
+                }
+            ) {
                 makePhotoPickerView()
             }
+            .showCragBottomSheet(
+                isPresented: $store.nearByCragState.showCragBottomSheet,
+                didTapSaveButton: { crag in
+                    send(.cragBottomSheet(.didTapSaveButton(crag)))
+                },
+                didTapSkipButton: {
+                    send(.cragBottomSheet(.didTapSkipButton))
+                },
+                didNearEnd: {
+                    send(.cragBottomSheet(.didNearEnd))
+                },
+                didChangeSearchText: { searchText in
+                    send(.cragBottomSheet(.didChangeSearchText(searchText)))
+                },
+                matchesPattern: { crag, searchText in
+                    false
+                },
+                crags: $store.nearByCragState.crags
+            )
     }
     
     public init(store: StoreOf<AddAttemptsFeature>) {
