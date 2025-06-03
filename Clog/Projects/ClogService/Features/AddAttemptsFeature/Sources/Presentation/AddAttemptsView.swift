@@ -102,6 +102,7 @@ private extension AddAttemptsView {
         ) {
             
         }
+        .preferredColorScheme(.dark)
         .photosPickerStyle(.inline)
     }
     
