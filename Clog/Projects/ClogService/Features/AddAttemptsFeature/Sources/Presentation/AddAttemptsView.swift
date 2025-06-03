@@ -69,6 +69,9 @@ private extension AddAttemptsView {
             
             ScrollView {
                 selectedCragNameView()
+                
+                Spacer().frame(height: 20)
+                
                 makeSelectedVideoView()
             }
             .padding(.horizontal, 16)
@@ -103,15 +106,26 @@ private extension AddAttemptsView {
     }
     
     private func selectedCragNameView() -> some View {
-        HStack(spacing: 0) {
+        let title: String
+        let color: Color
+        
+        if let crag = store.nearByCragState.selectedCrag {
+            title = crag.name
+            color = Color.clogUI.gray10
+        } else {
+            title = "암장 정보 미등록"
+            color = Color.clogUI.gray400
+        }
+        
+        return HStack(spacing: 4) {
             Image.clogUI.location
                 .resizable()
                 .frame(width: 30, height: 30)
-                .foregroundStyle(Color.clogUI.white)
+                .foregroundStyle(color)
             
-            Text("클로그 암장")
+            Text(title)
                 .font(.h2)
-                .foregroundStyle(Color.clogUI.gray10)
+                .foregroundStyle(color)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
