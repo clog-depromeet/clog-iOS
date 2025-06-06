@@ -11,9 +11,21 @@ import Foundation
 public struct User {
     public let id: Int
     public let name: String?
+    public let height: Int?
+    public let armSpan: Int?
+    public let instagramUrl: String?
     
-    public init(id: Int, name: String?) {
+    public init(
+        id: Int,
+        name: String?,
+        height: Int?,
+        armSpan: Int?,
+        instagramUrl: String?
+    ) {
         self.id = id
         self.name = name
+        self.height = height
+        self.armSpan = armSpan
+        self.instagramUrl = instagramUrl
     }
 }
