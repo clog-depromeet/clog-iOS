@@ -33,6 +33,9 @@ public struct ProfileEditorView: View {
         }
         .padding(.horizontal, 16)
         .background(Color.clogUI.gray800)
+        .onAppear {
+            send(.onAppear)
+        }
     }
 }
 
