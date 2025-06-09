@@ -28,6 +28,11 @@ public struct AddAttemptsFeature {
         var showPhotoPicker: Bool = false
         var nearByCragState = CragBottomSheetState()
         
+        var loadedVideosTotalDurationString: String {
+            let duration = loadedVideos.map(\.duration).reduce(0, +)
+            return Self.durationFormatter.string(from: duration) ?? "00:00:00"
+        }
+        
         public init() {}
         
         public struct CragBottomSheetState: Equatable {
@@ -35,6 +40,14 @@ public struct AddAttemptsFeature {
             var crags: [DesignCrag] = []
             var selectedCrag: Crag? = nil
         }
+        
+        private static let durationFormatter: DateComponentsFormatter = {
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = [.hour, .minute, .second]
+            formatter.unitsStyle = .positional
+            formatter.zeroFormattingBehavior = [.pad]
+            return formatter
+        }()
     }
     
     public enum Action: FeatureAction, ViewAction, BindableAction {

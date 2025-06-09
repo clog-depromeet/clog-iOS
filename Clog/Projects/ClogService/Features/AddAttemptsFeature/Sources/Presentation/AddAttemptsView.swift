@@ -154,13 +154,12 @@ private extension AddAttemptsView {
     }
     
     private func makeTotalTimeView() -> some View {
-        
         VStack(spacing: 0) {
             Text("총 운동 시간")
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.gray400)
             
-            Text("32:00:30")
+            Text(store.loadedVideosTotalDurationString)
                 .font(.h1)
                 .foregroundStyle(Color.clogUI.gray10)
         }
