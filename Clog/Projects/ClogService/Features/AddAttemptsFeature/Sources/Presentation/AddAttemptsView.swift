@@ -16,7 +16,6 @@ import ComposableArchitecture
 @ViewAction(for: AddAttemptsFeature.self)
 public struct AddAttemptsView: View {
     @Bindable public var store: StoreOf<AddAttemptsFeature>
-    @State private var showPhotoPicker: Bool = false // TODO: Reducer로 옮기기
     
     private let size = (UIScreen.main.bounds.width / 2) - 20
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
@@ -25,13 +24,35 @@ public struct AddAttemptsView: View {
         makeBodyView()
             .background(Color.clogUI.gray800)
             .onAppear {
-                self.showPhotoPicker = true
                 send(.onAppear)
             }
-            .fullScreenCover(isPresented: $showPhotoPicker) {
-                //            .fullScreenCover(isPresented: $store.showPhotoPicker) {
+            .fullScreenCover(
+                isPresented: $store.showPhotoPicker,
+                onDismiss: {
+                    send(.photoPickerDismissed)
+                }
+            ) {
                 makePhotoPickerView()
             }
+            .showCragBottomSheet(
+                isPresented: $store.nearByCragState.showCragBottomSheet,
+                didTapSaveButton: { crag in
+                    send(.cragBottomSheet(.didTapSaveButton(crag)))
+                },
+                didTapSkipButton: {
+                    send(.cragBottomSheet(.didTapSkipButton))
+                },
+                didNearEnd: {
+                    send(.cragBottomSheet(.didNearEnd))
+                },
+                didChangeSearchText: { searchText in
+                    send(.cragBottomSheet(.didChangeSearchText(searchText)))
+                },
+                matchesPattern: { crag, searchText in
+                    false
+                },
+                crags: $store.nearByCragState.crags
+            )
     }
     
     public init(store: StoreOf<AddAttemptsFeature>) {
@@ -48,6 +69,9 @@ private extension AddAttemptsView {
             
             ScrollView {
                 selectedCragNameView()
+                
+                Spacer().frame(height: 20)
+                
                 makeSelectedVideoView()
             }
             .padding(.horizontal, 16)
@@ -78,21 +102,36 @@ private extension AddAttemptsView {
         ) {
             
         }
+        .preferredColorScheme(.dark)
         .photosPickerStyle(.inline)
     }
     
     private func selectedCragNameView() -> some View {
-        HStack(spacing: 0) {
+        let title: String
+        let color: Color
+        
+        if let crag = store.nearByCragState.selectedCrag {
+            title = crag.name
+            color = Color.clogUI.gray10
+        } else {
+            title = "암장 정보 미등록"
+            color = Color.clogUI.gray400
+        }
+        
+        return HStack(spacing: 4) {
             Image.clogUI.location
                 .resizable()
                 .frame(width: 30, height: 30)
-                .foregroundStyle(Color.clogUI.white)
+                .foregroundStyle(color)
             
-            Text("클로그 암장")
+            Text(title)
                 .font(.h2)
-                .foregroundStyle(Color.clogUI.gray10)
+                .foregroundStyle(color)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onTapGesture {
+            send(.didTapCragTitleView)
+        }
     }
     
     private func makeSelectedVideoView() -> some View {
