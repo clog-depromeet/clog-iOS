@@ -22,7 +22,7 @@ public struct AddAttemptsView: View {
     
     public var body: some View {
         makeBodyView()
-            .background(Color.clogUI.gray800)
+            .background(Color.clogUI.gray900)
             .onAppear {
                 send(.onAppear)
             }
@@ -73,6 +73,10 @@ private extension AddAttemptsView {
                 Spacer().frame(height: 20)
                 
                 makeSelectedVideoView()
+                
+                Spacer().frame(height: 20)
+                
+                makeTotalTimeView()
             }
             .padding(.horizontal, 16)
         }
@@ -135,7 +139,10 @@ private extension AddAttemptsView {
     }
     
     private func makeSelectedVideoView() -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2)) {
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible()), count: 2),
+            spacing: 18
+        ) {
             ForEach(store.loadedVideos) { video in
                 VideoThumbnailView(
                     url: video.url,
@@ -144,5 +151,22 @@ private extension AddAttemptsView {
                 )
             }
         }
+    }
+    
+    private func makeTotalTimeView() -> some View {
+        
+        VStack(spacing: 0) {
+            Text("총 운동 시간")
+                .font(.h5)
+                .foregroundStyle(Color.clogUI.gray400)
+            
+            Text("32:00:30")
+                .font(.h1)
+                .foregroundStyle(Color.clogUI.gray10)
+        }
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity)
+        .background(Color.clogUI.gray800)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
