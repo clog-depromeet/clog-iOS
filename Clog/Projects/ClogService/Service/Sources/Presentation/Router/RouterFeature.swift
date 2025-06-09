@@ -89,6 +89,12 @@ extension RouterFeature {
             state.toast = Toast(message: "기록을 삭제했습니다.", type: .success)
             return .none
             
+        // add attempts view
+        case let .path(.element(id: id, action: .addAttempts(.delegate(.dismissView)))):
+            state.path.pop(from: id)
+            print(#function, "pop the path")
+            return .none
+            
         // Setting
         case .path(.element(id: let id, action: .setting(.backButtonTapped))):
             state.path.pop(from: id)

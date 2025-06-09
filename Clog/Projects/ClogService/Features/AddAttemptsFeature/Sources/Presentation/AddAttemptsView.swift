@@ -53,6 +53,13 @@ public struct AddAttemptsView: View {
                 },
                 crags: $store.nearByCragState.crags
             )
+            .presentDialog(
+                $store.scope(
+                    state: \.showCancelAttemptAlert,
+                    action: \.presentedAlert
+                ),
+                style: .delete
+            )
     }
     
     public init(store: StoreOf<AddAttemptsFeature>) {
@@ -86,7 +93,7 @@ private extension AddAttemptsView {
     private func makeAppBar() -> some View {
         AppBar {
             Button {
-                // Back Button Tapped
+                send(.didTapBackButton)
             } label: {
                 Image.clogUI.back
                     .foregroundStyle(Color.clogUI.white)

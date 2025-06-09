@@ -23,6 +23,8 @@ public struct AddAttemptsFeature {
     
     @ObservableState
     public struct State: Equatable {
+        @Presents var showCancelAttemptAlert: AlertState<Action.CancelAddAttempts>?
+        
         var videoSelections: [PhotosPickerItem] = []
         var loadedVideos: [VideoAssetMetadata] = []
         var showPhotoPicker: Bool = false
@@ -57,6 +59,14 @@ public struct AddAttemptsFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        
+        case presentedAlert(PresentationAction<CancelAddAttempts>)
+        
+        @CasePathable
+        public enum CancelAddAttempts: Equatable {
+            case cancel
+            case delete
+        }
     }
     
     public enum View {
@@ -65,6 +75,7 @@ public struct AddAttemptsFeature {
         case photoPickerDismissed
         case cragBottomSheet(CragBottomSheetAction)
         case didTapCragTitleView
+        case didTapBackButton
         
         public enum CragBottomSheetAction {
             case didTapSaveButton(DesignCrag)
@@ -88,12 +99,15 @@ public struct AddAttemptsFeature {
     }
     
     public enum ScopeAction { }
-    public enum DelegateAction { }
+    public enum DelegateAction {
+        case dismissView
+    }
     
     public var body: some Reducer<State, Action> {
         BindingReducer()
         
         Reduce(reducerCore)
+            .ifLet(\.$showCancelAttemptAlert, action: \.presentedAlert)
     }
     
     public init() {}
@@ -118,6 +132,15 @@ extension AddAttemptsFeature {
             
         case .async(let action):
             return asyncCore(&state, action)
+            
+        case .presentedAlert(let action):
+            guard case .presented(.delete) = action else {
+                return .none
+            }
+            return .send(.delegate(.dismissView))
+            
+        case .delegate:
+            return .none
         }
     }
 }
@@ -150,6 +173,21 @@ extension AddAttemptsFeature {
             
         case .didTapCragTitleView:
             state.nearByCragState.showCragBottomSheet = true
+            return .none
+            
+        case .didTapBackButton:
+            state.showCancelAttemptAlert = AlertState {
+                TextState("기록 삭제")
+            } actions: {
+                ButtonState(action: .delete) {
+                    TextState("삭제")
+                }
+                ButtonState(action: .cancel) {
+                    TextState("취소")
+                }
+            } message: {
+                TextState("기록을 취소하면 저장되지 않아요 \n기록 추가를 삭제하시나요?")
+            }
             return .none
         }
         
@@ -261,5 +299,11 @@ extension AddAttemptsFeature {
                 debugPrint(error.localizedDescription)
             }
         }
+    }
+}
+
+extension AddAttemptsFeature {
+    func delegateCore() -> Effect<Action> {
+        return .none
     }
 }
