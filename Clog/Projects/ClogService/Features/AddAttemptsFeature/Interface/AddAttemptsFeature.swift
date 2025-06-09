@@ -27,8 +27,10 @@ public struct AddAttemptsFeature {
         
         var videoSelections: [PhotosPickerItem] = []
         var loadedVideos: [VideoAssetMetadata] = []
-        var showPhotoPicker: Bool = false
+        var showPhotoPicker = false
         var nearByCragState = CragBottomSheetState()
+        var focusedMemoTextEditor = false
+        var memo = ""
         
         var loadedVideosTotalDurationString: String {
             let duration = loadedVideos.map(\.duration).reduce(0, +)
@@ -76,6 +78,7 @@ public struct AddAttemptsFeature {
         case cragBottomSheet(CragBottomSheetAction)
         case didTapCragTitleView
         case didTapBackButton
+        case didTapSaveButton
         
         public enum CragBottomSheetAction {
             case didTapSaveButton(DesignCrag)
@@ -188,6 +191,10 @@ extension AddAttemptsFeature {
             } message: {
                 TextState("기록을 취소하면 저장되지 않아요 \n기록 추가를 삭제하시나요?")
             }
+            return .none
+            
+        case .didTapSaveButton:
+            print("저장")
             return .none
         }
         

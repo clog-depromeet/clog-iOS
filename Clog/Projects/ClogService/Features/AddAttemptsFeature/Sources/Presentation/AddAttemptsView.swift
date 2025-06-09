@@ -69,25 +69,42 @@ public struct AddAttemptsView: View {
 
 private extension AddAttemptsView {
     private func makeBodyView() -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            makeAppBar()
-            
-            Spacer().frame(height: 20)
-            
-            ScrollView {
-                selectedCragNameView()
+        
+        let contentView = GeometryReader { geometry in
+            VStack(spacing: 0) {
+                
+                makeAppBar()
                 
                 Spacer().frame(height: 20)
                 
-                makeSelectedVideoView()
-                
-                Spacer().frame(height: 20)
-                
-                makeTotalTimeView()
+                ScrollView {
+                    selectedCragNameView()
+                    
+                    Spacer().frame(height: 20)
+                    
+                    makeSelectedVideoView()
+                    
+                    Spacer().frame(height: 20)
+                    
+                    makeTotalTimeView()
+                    
+                    Spacer().frame(height: 12)
+                    
+                    makeMemoTextEditorView()
+                }
+                .frame(minHeight: geometry.size.height)
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
+            .frame(width: geometry.size.width)
+            
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        
+        return ZStack(alignment: .bottom) {
+            contentView
+            
+            makeSaveButton()
+                .padding(.horizontal, 16)
+        }
     }
     
     private func makeAppBar() -> some View {
@@ -174,5 +191,25 @@ private extension AddAttemptsView {
         .frame(maxWidth: .infinity)
         .background(Color.clogUI.gray800)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private func makeMemoTextEditorView() -> some View {
+        return ClLogTextInput(
+            placeHolder: "메모를 입력해주세요.",
+            text: $store.memo,
+            isFocused: $store.focusedMemoTextEditor,
+            configuration: TextInputConfiguration(
+                state: .normal,
+                type: .editor,
+                background: .gray800
+            )
+        )
+    }
+    
+    private func makeSaveButton() -> some View {
+        GeneralButton("확인") {
+            send(.didTapSaveButton)
+        }
+        .style(.white)
     }
 }
