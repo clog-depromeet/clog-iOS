@@ -17,6 +17,16 @@ import Dependencies
 public protocol AccountUseCase {
     func fetchAccount() async throws -> User
     func updateName(_ name: String) async throws
+    
+    /// editAccount
+    ///
+    /// 유저 정보 수정 기존에 값이 있다면 수정하지 않은 값도 같이 담아서 보냄
+    ///
+    /// - Parameters:
+    ///   - request: EditUserRequest(이름, 키, 팔길이, 인스타 주소)
+    /// - Returns: Void
+    ///
+    func editAccount(_ request: EditUserRequest) async throws
 }
 
 // MARK: - Implement
@@ -34,18 +44,24 @@ public struct Account: AccountUseCase {
     public func updateName(_ name: String) async throws {
         try await repository.updateName(name)
     }
+    
+    public func editAccount(_ request: EditUserRequest) async throws {
+        try await repository.editAccount(request)
+    }
 }
 
 // MARK: - Mock
 public struct MockAccount: AccountUseCase {
     public func fetchAccount() -> User {
-        User(id: 0, name: "")
+        User(id: 0, name: nil, height: nil, armSpan: nil, instagramUrl: nil)
     }
     
     public func updateName(_ name: String) {
         
     }
     
+    public func editAccount(_ request: EditUserRequest) async throws {
+    }
 }
 
 // MARK: - DependencyKey

@@ -16,6 +16,7 @@ public protocol UserDataSource {
     func logout() async throws
     func me() async throws -> UserResponseDTO
     func name(_ request: UserNameRequestDTO) async throws
+    func edit(_ request: EditUserRequestDTO) async throws
 }
 
 public final class DefaultUserDataSource: UserDataSource {
@@ -55,6 +56,12 @@ public final class DefaultUserDataSource: UserDataSource {
             UserTarget.name(request)
         )
     }
+    
+    public func edit(_ request: EditUserRequestDTO) async throws {
+        let _: BaseResponseDTO<EmptyResponseDTO> = try await provider.request(
+            UserTarget.edit(request)
+        )
+    }
 }
 
 enum UserTarget {
@@ -62,6 +69,7 @@ enum UserTarget {
     case logout
     case me
     case name(UserNameRequestDTO)
+    case edit(EditUserRequestDTO)
 }
 
 extension UserTarget: TargetType {
@@ -75,6 +83,7 @@ extension UserTarget: TargetType {
         case .logout: "/log-out"
         case .me: "/me"
         case .name: "/name"
+        case .edit: ""
         }
     }
     
@@ -84,6 +93,7 @@ extension UserTarget: TargetType {
         case .logout: .post
         case .me: .get
         case .name: .patch
+        case .edit: .patch
         }
     }
     
@@ -98,6 +108,8 @@ extension UserTarget: TargetType {
         case .logout, .me:
             return .requestPlain
         case .name(let request):
+            return .requestJSONEncodable(request)
+        case .edit(let request):
             return .requestJSONEncodable(request)
         }
     }

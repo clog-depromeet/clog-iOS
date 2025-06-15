@@ -12,4 +12,5 @@ import Foundation
 public protocol AccountRepository {
     func fetchAccount() async throws -> User
     func updateName(_ name: String) async throws
+    func editAccount(_ request: EditUserRequest) async throws
 }
