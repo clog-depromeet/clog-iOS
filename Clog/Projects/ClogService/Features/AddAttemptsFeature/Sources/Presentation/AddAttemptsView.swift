@@ -10,8 +10,10 @@ import SwiftUI
 import PhotosUI
 
 import DesignKit
+import Core
 
 import ComposableArchitecture
+import AddAttemptsFeatureInterface
 
 @ViewAction(for: AddAttemptsFeature.self)
 public struct AddAttemptsView: View {
@@ -167,10 +169,10 @@ private extension AddAttemptsView {
             columns: Array(repeating: GridItem(.flexible()), count: 2),
             spacing: 18
         ) {
-            ForEach(store.loadedVideos) { video in
+            ForEach(store.selectedVideos) { video in
                 VideoThumbnailView(
-                    url: video.url,
-                    timeString: video.formattedDuration,
+                    image: video.thumbnail,
+                    duration: video.formattedDuration,
                     size: size
                 )
             }
@@ -183,7 +185,7 @@ private extension AddAttemptsView {
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.gray400)
             
-            Text(store.loadedVideosTotalDurationString)
+            Text(store.totalDurationFormatted)
                 .font(.h1)
                 .foregroundStyle(Color.clogUI.gray10)
         }

@@ -220,5 +220,13 @@ public struct ClogServiceAssembly: Assembly {
             )
         }
         .inObjectScope(.container)
+        
+        container.register(AddProblemsUseCase.self) { _ in
+            DefaultAddProblemsUseCase(
+                repository: DefaultAddProblemsRepository(
+                    dataSource: DefaultStoriesDataSource()
+                )
+            )
+        }
     }
 }
