@@ -11,7 +11,6 @@ public extension TargetDependency {
     struct Features {
         public struct ProfileEditor {}
         public struct Social {}
-        public struct ProfileEditor {}
         public struct CompletionReport {}
         public struct NickName {}
         public struct Onboarding {}
@@ -250,20 +249,6 @@ public extension TargetDependency.Features.ProfileEditor {
 
 public extension TargetDependency.Features.Social {
     static let name = "Social"
-    
-    static let feature = TargetDependency.Features.project(
-        name: "\(name)Feature",
-        service: .clog
-    )
-    
-    static let interface = TargetDependency.project(
-        target: "\(name)FeatureInterface",
-        path: .relativeToFeature(path: "\(name)Feature", service: .clog)
-    )
-}
-
-public extension TargetDependency.Features.ProfileEditor {
-    static let name = "ProfileEditor"
     
     static let feature = TargetDependency.Features.project(
         name: "\(name)Feature",
