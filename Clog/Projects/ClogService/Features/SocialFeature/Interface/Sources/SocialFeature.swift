@@ -8,7 +8,6 @@
 
 import Foundation
 import ComposableArchitecture
-import SocialFeatureInterface
 
 @Reducer
 public struct SocialFeature {
@@ -16,7 +15,7 @@ public struct SocialFeature {
     @ObservableState
     public struct State: Equatable {
         
-        var socialTabState: SocialTabFeature.State = .init()
+        public var socialTabState: SocialTabFeature.State = .init()
         
         public init() { }
         

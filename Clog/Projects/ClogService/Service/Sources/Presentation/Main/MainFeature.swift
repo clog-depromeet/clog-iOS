@@ -17,6 +17,7 @@ import FolderFeature
 import CalendarFeature
 import ReportFeature
 import SocialFeature
+import SocialFeatureInterface
 
 // 외부 Module
 import ComposableArchitecture
