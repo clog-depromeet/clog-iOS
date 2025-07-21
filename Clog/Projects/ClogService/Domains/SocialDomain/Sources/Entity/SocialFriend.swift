@@ -14,7 +14,6 @@ public struct SocialFriend: Identifiable, Equatable {
     public let nickName: String
     public let tag: String
     public let isFollowing: Bool
-    public let isFollower: Bool
     public let isClimbedWithin7Days: Bool
     
     public init(
@@ -23,7 +22,6 @@ public struct SocialFriend: Identifiable, Equatable {
         nickName: String,
         tag: String,
         isFollowed: Bool,
-        isFollower: Bool,
         isClimbedWithin7Days: Bool
     ) {
         self.id = id
@@ -31,7 +29,6 @@ public struct SocialFriend: Identifiable, Equatable {
         self.nickName = nickName
         self.tag = tag
         self.isFollowing = isFollowed
-        self.isFollower = isFollower
         self.isClimbedWithin7Days = isClimbedWithin7Days
     }
     
@@ -43,7 +40,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "홍길동",
                 tag: "@hong",
                 isFollowed: true,
-                isFollower: true,
                 isClimbedWithin7Days: true
             ),
             SocialFriend(
@@ -52,7 +48,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "김철수",
                 tag: "@chulsoo",
                 isFollowed: false,
-                isFollower: true,
                 isClimbedWithin7Days: false
             ),
             SocialFriend(
@@ -61,7 +56,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "이영희",
                 tag: "@younghee",
                 isFollowed: true,
-                isFollower: false,
                 isClimbedWithin7Days: true
             ),
             SocialFriend(
@@ -70,7 +64,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "박준형",
                 tag: "@joon",
                 isFollowed: false,
-                isFollower: false,
                 isClimbedWithin7Days: false
             ),
             SocialFriend(
@@ -79,7 +72,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "최수지",
                 tag: "@suzy",
                 isFollowed: true,
-                isFollower: true,
                 isClimbedWithin7Days: false
             ),
             SocialFriend(
@@ -88,7 +80,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "정우성",
                 tag: "@woosung",
                 isFollowed: true,
-                isFollower: false,
                 isClimbedWithin7Days: true
             ),
             SocialFriend(
@@ -97,7 +88,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "한지민",
                 tag: "@jimin",
                 isFollowed: false,
-                isFollower: true,
                 isClimbedWithin7Days: true
             ),
             SocialFriend(
@@ -106,7 +96,6 @@ public struct SocialFriend: Identifiable, Equatable {
                 nickName: "유재석",
                 tag: "@jaeseok",
                 isFollowed: false,
-                isFollower: false,
                 isClimbedWithin7Days: false
             )
         ]
