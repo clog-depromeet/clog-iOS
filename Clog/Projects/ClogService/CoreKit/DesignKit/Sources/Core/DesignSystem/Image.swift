@@ -109,6 +109,9 @@ extension ClogUI where Base == Image {
     public static var icn_height: Image { asset(#function) }
     public static var icn_arm_length: Image { asset(#function) }
     public static var status: Image { asset(#function) }
+    public static var icn_follow_none: Image { asset(#function) }
+    public static var icn_follow_plus: Image { asset(#function) }
+    
     
     // Edit
     public static var playSmall: Image { asset(#function) }
