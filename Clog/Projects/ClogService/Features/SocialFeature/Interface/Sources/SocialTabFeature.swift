@@ -18,7 +18,8 @@ public struct SocialTabFeature {
     @ObservableState
     public struct State: Equatable {
         public var selectedTab: CurrentTab = .follower
-        public var socialFriends: [SocialFriend] = SocialFriend.dummy()
+        public var socialFriends: [SocialFriend] = []
+        public var recommendFriends: [SocialFriend] = SocialFriend.dummy()
         public init() { }
     }
     

@@ -41,6 +41,7 @@ public struct SocialTabView: View {
                     tab: .following
                 )
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
         
     }
@@ -96,6 +97,7 @@ public struct SocialTabView: View {
         }
     }
     
+    
     private func makeEmptyView(
         tab: SocialTabFeature.State.CurrentTab
     ) -> some View {
@@ -111,6 +113,12 @@ public struct SocialTabView: View {
                 .font(.h5)
             
             Spacer()
+            
+            if tab == .following {
+                ForEach(store.state.recommendFriends.prefix(3)) {
+                    SocialFriendListCell(friend: $0)
+                }
+            }
         }
         .padding(.top, 69)
         .frame(maxWidth: .infinity)
