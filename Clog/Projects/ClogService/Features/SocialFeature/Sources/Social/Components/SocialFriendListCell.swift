@@ -20,7 +20,7 @@ public struct SocialFriendListCell: View {
     public init(
         friend: SocialFriend,
         onFollowTap: @escaping () -> Void,
-        onMoreTap: (() -> Void)? = nil  // @escaping 제거
+        onMoreTap: (() -> Void)? = nil
     ) {
         self.friend = friend
         self.onFollowTap = onFollowTap
@@ -74,9 +74,9 @@ public struct SocialFriendListCell: View {
             Spacer()
                 .frame(width: 12)
             
-            if (friend.isFollowing) {
+            if let action = onMoreTap {
                 Button {
-                    onMoreTap?()
+                    action()
                 } label: {
                     Image.clogUI.icn_dot_vertical
                         .resizable()
