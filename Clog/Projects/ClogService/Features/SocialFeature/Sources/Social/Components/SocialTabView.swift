@@ -115,7 +115,7 @@ public struct SocialTabView: View {
             Spacer()
             
             if tab == .following {
-                ForEach(store.state.recommendFriends.prefix(3)) {
+                ForEach(store.state.recommendFriends.filter { !$0.isFollowing }.prefix(3)) {
                     SocialFriendListCell(friend: $0)
                 }
             }

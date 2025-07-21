@@ -46,6 +46,7 @@ public struct SocialFriendListCell: View {
             } label: {
                 HStack {
                     Text(friend.isFollowing == true ? "팔로잉" : "팔로우")
+                        .font(.b2)
                         .foregroundStyle(
                             friend.isFollowing == true
                             ? Color.clogUI.white
@@ -62,16 +63,17 @@ public struct SocialFriendListCell: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
-            
             Spacer()
                 .frame(width: 12)
             
-            Button {
-                
-            } label: {
-                Image.clogUI.icn_dot_vertical
-                    .resizable()
-                    .frame(20)
+            if (friend.isFollowing) {
+                Button {
+                    
+                } label: {
+                    Image.clogUI.icn_dot_vertical
+                        .resizable()
+                        .frame(20)
+                }
             }
                 
         }
