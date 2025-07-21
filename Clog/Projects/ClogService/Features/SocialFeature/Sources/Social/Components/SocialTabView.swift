@@ -89,7 +89,15 @@ public struct SocialTabView: View {
         } else {
             ScrollView {
                 ForEach(friends) { friend in
-                    SocialFriendListCell(friend: friend)
+                    SocialFriendListCell(
+                        friend: friend,
+                        onFollowTap: {
+                            send(.followButtonTapped(friend))
+                        },
+                        onMoreTap: {
+                            send(.moreButtonTapped(friend))
+                        }
+                    )
                 }
             }
             .background(Color.clogUI.gray800.ignoresSafeArea())
@@ -115,8 +123,10 @@ public struct SocialTabView: View {
             Spacer()
             
             if tab == .following {
-                ForEach(store.state.recommendFriends.filter { !$0.isFollowing }.prefix(3)) {
-                    SocialFriendListCell(friend: $0)
+                ForEach(store.state.recommendFriends.filter { !$0.isFollowing }.prefix(3)) { friend in
+                    SocialFriendListCell(friend: friend) {
+                        send(.followButtonTapped(friend))
+                    }
                 }
             }
         }

@@ -14,9 +14,17 @@ import DesignKit
 public struct SocialFriendListCell: View {
     
     private let friend: SocialFriend
+    private let onFollowTap: () -> Void
+    private let onMoreTap: (() -> Void)?
     
-    public init(friend: SocialFriend) {
+    public init(
+        friend: SocialFriend,
+        onFollowTap: @escaping () -> Void,
+        onMoreTap: (() -> Void)? = nil  // @escaping 제거
+    ) {
         self.friend = friend
+        self.onFollowTap = onFollowTap
+        self.onMoreTap = onMoreTap
     }
     
     public var body: some View {
@@ -42,7 +50,7 @@ public struct SocialFriendListCell: View {
             Spacer()
             
             Button {
-                
+                onFollowTap()
             } label: {
                 HStack {
                     Text(friend.isFollowing == true ? "팔로잉" : "팔로우")
@@ -68,7 +76,7 @@ public struct SocialFriendListCell: View {
             
             if (friend.isFollowing) {
                 Button {
-                    
+                    onMoreTap?()
                 } label: {
                     Image.clogUI.icn_dot_vertical
                         .resizable()

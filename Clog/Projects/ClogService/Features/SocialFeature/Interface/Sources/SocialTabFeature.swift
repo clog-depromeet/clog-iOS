@@ -34,6 +34,8 @@ public struct SocialTabFeature {
     
     public enum View {
         case selectTab(SocialTabFeature.State.CurrentTab)
+        case followButtonTapped(SocialFriend)
+        case moreButtonTapped(SocialFriend)
     }
     
     public enum InnerAction { }
@@ -60,6 +62,12 @@ public struct SocialTabFeature {
         switch action {
         case .selectTab(let tab):
             state.selectedTab = tab
+            return .none
+        case .followButtonTapped(let f):
+            // TODO: 팔로우 / 팔로잉
+            return .none
+        case .moreButtonTapped(let f):
+            // TODO: 팔로우 - 더보기
             return .none
         }
     }
