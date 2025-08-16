@@ -21,6 +21,7 @@ public struct SocialFeature {
         
         public struct SearchBottomSheet: Equatable {
             public var show = false
+            public var searchText = ""
         }
     }
     
@@ -44,6 +45,7 @@ public struct SocialFeature {
             switch action {
             case .didTapSearchButton:
                 state.searchBottomSheet.show = true
+
                 return .none
                 
             default: return .none

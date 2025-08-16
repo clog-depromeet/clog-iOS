@@ -43,8 +43,7 @@ extension SocialView {
         }
         .background(Color.clogUI.gray800)
         .bottomSheet(isPresented: $store.searchBottomSheet.show) {
-            Text("bottom sheet")
-            
+            makeSearchUserBottomSheet()
         }
     }
     
@@ -185,6 +184,40 @@ extension SocialView {
                 action: \.socialTabAction
             )
         )
+    }
+    
+    private func makeSearchUserBottomSheet() -> some View {
+        VStack(alignment: .leading) {
+            Text("닉네임 검색")
+                .font(.h3)
+                .foregroundStyle(Color.clogUI.white)
+            
+            Spacer().frame(height: 10)
+            
+            ClLogTextInput(
+                placeHolder: "닉네임을 입력해주세요",
+                text: $store.searchBottomSheet.searchText,
+                isFocused: .constant(true)
+            )
+            
+            Spacer().frame(height: 16)
+            
+            // TODO: 서버 연결
+            ForEach(0..<5, id: \.self) { friend in
+                SocialFriendListCell(
+                    friend: .init(
+                        id: "id",
+                        profileImageUrl: nil,
+                        nickName: "nickname",
+                        tag: "tag",
+                        isFollowed: false,
+                        isClimbedWithin7Days: false
+                    ),
+                    onFollowTap: { }
+                )
+            }
+        }
+        .padding(16)
     }
 }
 
