@@ -8,6 +8,7 @@
 
 import Foundation
 import ComposableArchitecture
+import SocialDomain
 
 @Reducer
 public struct SocialFeature {
@@ -24,6 +25,7 @@ public struct SocialFeature {
         public struct SearchBottomSheet: Equatable {
             public var show = false
             public var searchText = ""
+            public var result: [SocialFriend] = []
         }
     }
     
@@ -32,7 +34,11 @@ public struct SocialFeature {
         
         case socialTabAction(SocialTabFeature.Action)
         case didTapSearchButton
+        case searchTextChanged(String)
+        case searchFriendsResponse(Result<[SocialFriend], Error>)
     }
+    
+    private enum CancelID { case search }
     
     public init() {}
     
@@ -47,6 +53,41 @@ public struct SocialFeature {
             switch action {
             case .didTapSearchButton:
                 state.searchBottomSheet.show = true
+                return .none
+                
+            case let .searchTextChanged(keyword):
+                if keyword.isEmpty {
+                    state.searchBottomSheet.result = []
+                    return .cancel(id: CancelID.search)
+                }
+                
+                guard keyword.count >= 2 else {
+                    state.searchBottomSheet.result = []
+                    return .cancel(id: CancelID.search)
+                }
+                
+                return .run { send in
+                    print("검색어: \(keyword)")
+                    do {
+                        let friends = try await searchUseCase.loadFirstPage(keyword: keyword)
+                        await send(.searchFriendsResponse(.success(friends)))
+                    } catch {
+                        await send(.searchFriendsResponse(.failure(error)))
+                    }
+                }
+                .debounce(
+                    id: CancelID.search,
+                    for: .seconds(0.5),
+                    scheduler: DispatchQueue.main
+                )
+                
+            case let .searchFriendsResponse(.success(friends)):
+                state.searchBottomSheet.result = friends
+                return .none
+                
+            case let .searchFriendsResponse(.failure(error)):
+                state.searchBottomSheet.result = []
+                print("Search error: \(error)")
                 return .none
                 
             default: return .none

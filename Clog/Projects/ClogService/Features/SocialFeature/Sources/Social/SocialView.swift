@@ -199,6 +199,9 @@ extension SocialView {
                 text: $store.searchBottomSheet.searchText,
                 isFocused: .constant(true)
             )
+            .onChange(of: store.searchBottomSheet.searchText) { oldValue, newValue in
+                store.send(.searchTextChanged(newValue))
+            }
             
             Spacer().frame(height: 16)
             
