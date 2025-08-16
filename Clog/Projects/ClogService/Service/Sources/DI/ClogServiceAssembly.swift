@@ -21,6 +21,7 @@ import Swinject
 import AccountDomain
 import ReportDomain
 import TokenDomain
+import SocialDomain
 
 import VideoFeatureInterface
 import VideoFeature
@@ -220,5 +221,11 @@ public struct ClogServiceAssembly: Assembly {
             )
         }
         .inObjectScope(.container)
+        
+        container.register(SocialFriendRepository.self) { _ in
+            DefaultSocialFriendRepository(
+                dataSource: DefaultSocialFriendDataSource()
+            )
+        }
     }
 }

@@ -42,6 +42,10 @@ extension SocialView {
             makeFollowersFollowingView()
         }
         .background(Color.clogUI.gray800)
+        .bottomSheet(isPresented: $store.searchBottomSheet.show) {
+            Text("bottom sheet")
+            
+        }
     }
     
     private func makeAppBar() -> some View {
@@ -50,9 +54,14 @@ extension SocialView {
                 .font(.h3)
                 .foregroundStyle(Color.clogUI.gray10)
         }, rightContent: {
-            Image.clogUI.magnifier
-                .resizable()
-                .frame(24)
+            Button {
+                store.send(.didTapSearchButton)
+            } label: {
+                Image.clogUI.magnifier
+                    .resizable()
+                    .frame(24)
+                    .foregroundStyle(Color.clogUI.white)
+            }
         })
     }
     

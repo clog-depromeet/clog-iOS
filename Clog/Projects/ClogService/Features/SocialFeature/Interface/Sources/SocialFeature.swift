@@ -16,20 +16,38 @@ public struct SocialFeature {
     public struct State: Equatable {
         
         public var socialTabState: SocialTabFeature.State = .init()
-        
+        public var searchBottomSheet = SearchBottomSheet()
         public init() { }
         
+        public struct SearchBottomSheet: Equatable {
+            public var show = false
+        }
     }
     
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        
         case socialTabAction(SocialTabFeature.Action)
+        case didTapSearchButton
     }
     
     public init() {}
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Scope(state: \.socialTabState, action: \.socialTabAction) {
             SocialTabFeature()
+        }
+        
+        Reduce { state, action in
+            switch action {
+            case .didTapSearchButton:
+                state.searchBottomSheet.show = true
+                return .none
+                
+            default: return .none
+            }
         }
     }
 }

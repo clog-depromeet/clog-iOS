@@ -12,6 +12,7 @@ import SocialDomain
 
 @Reducer
 public struct SocialTabFeature {
+    @Dependency(\.socialFriendRepository) private var socialRepository
     
     public init() {}
     
@@ -33,13 +34,17 @@ public struct SocialTabFeature {
     }
     
     public enum View {
+        // case onAppear
         case selectTab(SocialTabFeature.State.CurrentTab)
         case followButtonTapped(SocialFriend)
         case moreButtonTapped(SocialFriend)
     }
     
     public enum InnerAction { }
-    public enum AsyncAction { }
+    public enum AsyncAction {
+        // fetch following
+        // fetch follower
+    }
     public enum ScopeAction { }
     public enum DelegateAction { }
     
@@ -63,10 +68,10 @@ public struct SocialTabFeature {
         case .selectTab(let tab):
             state.selectedTab = tab
             return .none
-        case .followButtonTapped(let f):
+        case .followButtonTapped:
             // TODO: 팔로우 / 팔로잉
             return .none
-        case .moreButtonTapped(let f):
+        case .moreButtonTapped:
             // TODO: 팔로우 - 더보기
             return .none
         }
