@@ -205,22 +205,17 @@ extension SocialView {
             
             Spacer().frame(height: 16)
             
-            // TODO: 서버 연결
-            ForEach(0..<5, id: \.self) { friend in
+            ForEach(store.searchBottomSheet.result) { friend in
                 SocialFriendListCell(
-                    friend: .init(
-                        id: "id",
-                        profileImageUrl: nil,
-                        nickName: "nickname",
-                        tag: "tag",
-                        isFollowed: false,
-                        isClimbedWithin7Days: false
-                    ),
-                    onFollowTap: { }
-                )
+                    friend: friend) {
+                        print("tap!")
+                    }
             }
+            
+            Spacer()
         }
         .padding(16)
+        .frame(height: 300) // TODO: 높이 조절 필요
     }
 }
 
