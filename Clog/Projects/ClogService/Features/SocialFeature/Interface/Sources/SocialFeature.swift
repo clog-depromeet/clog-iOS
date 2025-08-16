@@ -13,7 +13,7 @@ import SocialDomain
 @Reducer
 public struct SocialFeature {
     @Dependency(\.socialFriendRepository) private var socialRepository
-    @Dependency(\.searchSocialFriendUseCase) private var searchUseCase
+    @Dependency(\.searchSocialFriendRepository) private var searchRepository
     
     @ObservableState
     public struct State: Equatable {
@@ -69,7 +69,7 @@ public struct SocialFeature {
                 return .run { send in
                     print("검색어: \(keyword)")
                     do {
-                        let friends = try await searchUseCase.loadFirstPage(keyword: keyword)
+                        let friends = try await searchRepository.loadFirstPage(keyword: keyword)
                         await send(.searchFriendsResponse(.success(friends)))
                     } catch {
                         await send(.searchFriendsResponse(.failure(error)))

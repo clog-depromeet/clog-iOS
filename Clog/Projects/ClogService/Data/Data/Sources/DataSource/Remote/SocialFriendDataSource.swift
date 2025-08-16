@@ -13,7 +13,6 @@ import Moya
 public protocol SocialFriendDataSource {
     func followings() async throws -> [SocialFriendResponseDTO]
     func followers() async throws -> [SocialFriendResponseDTO]
-    func users(cursor: Double?, keyword: String?) async throws -> (items: [SocialFriendResponseDTO]?, meta: BaseMetaResponseDTO?)
 }
 
 public final class DefaultSocialFriendDataSource: SocialFriendDataSource {
@@ -36,27 +35,12 @@ public final class DefaultSocialFriendDataSource: SocialFriendDataSource {
         }
         return followings
     }
-    
-    public func users(
-        cursor: Double?,
-        keyword: String?
-    ) async throws -> (items: [SocialFriendResponseDTO]?, meta: BaseMetaResponseDTO?) {
-        let response: BaseResponseDTO<BaseContentsResponse<[SocialFriendResponseDTO], BaseMetaResponseDTO>> = try await provider.request(
-            .users(
-                cursor: cursor,
-                keyword: keyword
-            )
-        )
-        
-        return (response.data?.contents, response.data?.meta)
-    }
 }
 
 extension DefaultSocialFriendDataSource {
     enum Target: TargetType {
         case followings
         case followers
-        case users(cursor: Double?, keyword: String?)
         
         var baseURL: URL {
             return URL(string: Environment.baseURL + "/api/v1/users/me")!
@@ -68,14 +52,12 @@ extension DefaultSocialFriendDataSource {
                 return "/followings"
             case .followers:
                 return "/followers"
-            case .users:
-                return "/users"
             }
         }
         
         var method: Moya.Method {
             switch self {
-            case .followers, .followings, .users: .get
+            case .followers, .followings: .get
             }
         }
         
@@ -83,16 +65,6 @@ extension DefaultSocialFriendDataSource {
             switch self {
             case .followers, .followings:
                 return .requestPlain
-                
-            case .users(let cursor, let keyword):
-                let parameters: [String: Any?] = [
-                    "cursor": cursor,
-                    "keyword": keyword
-                ]
-                return .requestParameters(
-                    parameters: parameters.compactMapValues { $0 },
-                    encoding: URLEncoding.default
-                )
             }
         }
     }
