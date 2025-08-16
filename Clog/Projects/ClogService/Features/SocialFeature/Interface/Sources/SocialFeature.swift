@@ -11,6 +11,8 @@ import ComposableArchitecture
 
 @Reducer
 public struct SocialFeature {
+    @Dependency(\.socialFriendRepository) private var socialRepository
+    @Dependency(\.searchSocialFriendUseCase) private var searchUseCase
     
     @ObservableState
     public struct State: Equatable {
@@ -45,7 +47,6 @@ public struct SocialFeature {
             switch action {
             case .didTapSearchButton:
                 state.searchBottomSheet.show = true
-
                 return .none
                 
             default: return .none

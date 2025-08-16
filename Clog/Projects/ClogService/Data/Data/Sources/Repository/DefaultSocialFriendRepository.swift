@@ -23,4 +23,13 @@ public struct DefaultSocialFriendRepository: SocialFriendRepository {
     public func fetchFollowings() async throws -> [SocialFriend] {
         try await dataSource.followings().map { $0.toDomain() }
     }
+    
+    public func users(cursor: Double?, keyword: String?) async throws -> (items: [SocialFriend], nextCursor: Double?, hasMore: Bool) {
+        let result = try await dataSource.users(cursor: cursor, keyword: keyword)
+        
+        return (items: result.items?.compactMap { $0.toDomain() } ?? [],
+                nextCursor: result.meta?.nextCursor,
+                hasMore: result.meta?.hasMore ?? false
+        )
+    }
 }

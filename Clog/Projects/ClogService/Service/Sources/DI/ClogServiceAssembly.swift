@@ -227,5 +227,13 @@ public struct ClogServiceAssembly: Assembly {
                 dataSource: DefaultSocialFriendDataSource()
             )
         }
+        
+        container.register(SearchSocialFriendUseCase.self) { _ in
+            DefaultSearchSocialFriendUseCase(
+                repository: DefaultSocialFriendRepository(
+                    dataSource: DefaultSocialFriendDataSource()
+                )
+            )
+        }
     }
 }
