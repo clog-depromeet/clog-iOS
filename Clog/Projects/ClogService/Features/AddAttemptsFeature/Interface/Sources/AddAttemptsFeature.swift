@@ -12,6 +12,8 @@ import Core
 import DesignKit
 import Shared
 import Domain
+import StoryDomain
+import VideoDomain
 
 import ComposableArchitecture
 import _PhotosUI_SwiftUI
@@ -20,27 +22,31 @@ import _PhotosUI_SwiftUI
 public struct AddAttemptsFeature {
     
     @Dependency(\.nearByCragUseCase) private var cragUseCase
+    @Dependency(\.addProblemsUseCase) private var addProblemsUseCase
+    @Dependency(\.videoUseCase) private var videoUseCase
     
     @ObservableState
     public struct State: Equatable {
-        @Presents var showCancelAttemptAlert: AlertState<Action.CancelAddAttempts>?
+        @Presents public var showCancelAttemptAlert: AlertState<Action.CancelAddAttempts>?
         
-        var videoSelections: [PhotosPickerItem] = []
-        var loadedVideos: [VideoAssetMetadata] = []
-        var showPhotoPicker: Bool = false
-        var nearByCragState = CragBottomSheetState()
+        public var videoSelections: [PhotosPickerItem] = []
+        public var selectedVideos: [VideoInfo] = []
+        public var showPhotoPicker = false
+        public var nearByCragState = CragBottomSheetState()
+        public var focusedMemoTextEditor = false
+        public var memo = ""
         
-        var loadedVideosTotalDurationString: String {
-            let duration = loadedVideos.map(\.duration).reduce(0, +)
-            return Self.durationFormatter.string(from: duration) ?? "00:00:00"
+        public var totalDurationFormatted: String {
+            let total = selectedVideos.map(\.duration).reduce(0, +)
+            return Self.durationFormatter.string(from: total) ?? "00:00"
         }
         
         public init() {}
         
         public struct CragBottomSheetState: Equatable {
-            var showCragBottomSheet = false
-            var crags: [DesignCrag] = []
-            var selectedCrag: Crag? = nil
+            public var showCragBottomSheet = false
+            public var crags: [DesignCrag] = []
+            public var selectedCrag: Crag? = nil
         }
         
         private static let durationFormatter: DateComponentsFormatter = {
@@ -76,6 +82,8 @@ public struct AddAttemptsFeature {
         case cragBottomSheet(CragBottomSheetAction)
         case didTapCragTitleView
         case didTapBackButton
+        case didTapSaveButton
+        case didSavedAttempts
         
         public enum CragBottomSheetAction {
             case didTapSaveButton(DesignCrag)
@@ -86,11 +94,12 @@ public struct AddAttemptsFeature {
     }
     
     public enum InnerAction {
-        case didLoadVideos([VideoAssetMetadata])
+        case didLoadVideos([VideoInfo])
     }
     
     public enum AsyncAction {
         case cragBottomSheet(CragBottomSheetAction)
+        case postProblems(AddProblems)
         
         public enum CragBottomSheetAction {
             case fetch(_ crags: [Crag])
@@ -160,7 +169,7 @@ extension AddAttemptsFeature {
         case let .videoSelectionChanged(selections):
             state.videoSelections = selections
             return .run { send in
-                let videos = try await loadVideoMetadataList(from: selections)
+                let videos = try await loadVideoInfoList(from: selections)
                 await send(.inner(.didLoadVideos(videos)))
             }
             
@@ -189,8 +198,24 @@ extension AddAttemptsFeature {
                 TextState("기록을 취소하면 저장되지 않아요 \n기록 추가를 삭제하시나요?")
             }
             return .none
+            
+        case .didTapSaveButton:
+            let oldestDate = state.selectedVideos
+                .compactMap { $0.creationDate }
+                .min() ?? Date()
+            
+            let problem = AddProblems(
+                date: oldestDate.formattedString("y-MM-dd"),
+                cragId: state.nearByCragState.selectedCrag?.id,
+                memo: state.memo,
+                videos: []
+            )
+            return .send(.async(.postProblems(problem)))
+            
+        case .didSavedAttempts:
+            // Pop to parent
+            return .none
         }
-        
     }
     
     private func handleCragBottomSheetViewAction(
@@ -221,12 +246,39 @@ extension AddAttemptsFeature {
         }
     }
     
-    private func loadVideoMetadataList(from selections: [PhotosPickerItem]) async throws -> [VideoAssetMetadata] {
-        return try await withThrowingTaskGroup(of: VideoAssetMetadata?.self) { group in
-            var results = [VideoAssetMetadata]()
+    func generateVideoThumbnailURL(from url: URL) -> URL? {
+        let asset = AVAsset(url: url)
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.appliesPreferredTrackTransform = true
+        let time = CMTime(seconds: 1, preferredTimescale: 600)
+
+        guard let cgImage = try? generator.copyCGImage(at: time, actualTime: nil) else {
+            return nil
+        }
+
+        let uiImage = UIImage(cgImage: cgImage)
+        guard let data = uiImage.jpegData(compressionQuality: 0.8) else {
+            return nil
+        }
+
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("jpg")
+
+        do {
+            try data.write(to: tempURL)
+            return tempURL
+        } catch {
+            return nil
+        }
+    }
+    
+    private func loadVideoInfoList(from selections: [PhotosPickerItem]) async throws -> [VideoInfo] {
+        return try await withThrowingTaskGroup(of: VideoInfo?.self) { group in
+            var results = [VideoInfo]()
             for item in selections {
                 group.addTask {
-                    try await VideoAssetLoader.loadVideoMetadata(from: item)
+                    try await VideoLoader.loadVideoInfo(from: item)
                 }
             }
             
@@ -235,7 +287,6 @@ extension AddAttemptsFeature {
                     results.append(result)
                 }
             }
-            
             return results
         }
     }
@@ -249,7 +300,7 @@ extension AddAttemptsFeature {
         
         switch action {
         case .didLoadVideos(let videos):
-            state.loadedVideos = videos
+            state.selectedVideos = videos
             return .none
         }
     }
@@ -276,6 +327,52 @@ extension AddAttemptsFeature {
                 state.nearByCragState.crags.append(contentsOf: crags)
                 return .none
             }
+            
+        case .postProblems(let problems):
+            return .run { [selectedVideos = state.selectedVideos] send in
+                do {
+                    let uploadedMap: [String: String] = try await withThrowingTaskGroup(of: (String, String)?.self) { group in
+                        for video in selectedVideos {
+                            group.addTask {
+                                guard let url = try await postThumbnail(
+                                    id: video.id,
+                                    image: video.thumbnail
+                                ) else { return nil }
+                                return (video.id, url)
+                            }
+                        }
+                        
+                        var result: [String: String] = [:]
+                        for try await pair in group {
+                            if let (id, url) = pair {
+                                result[id] = url
+                            }
+                        }
+                        return result
+                    }
+
+                    let videos: [VideoRequest] = selectedVideos.map { video in
+                        VideoRequest(
+                            localPath: video.id,
+                            thumbnailUrl: uploadedMap[video.id],
+                            durationMs: Int(video.duration),
+                            stamps: []
+                        )
+                    }
+
+                    let finalProblem = AddProblems(
+                        date: problems.date,
+                        cragId: problems.cragId,
+                        memo: problems.memo,
+                        videos: videos
+                    )
+                    
+                    try await addProblemsUseCase.execute(finalProblem)
+                    await send(.view(.didSavedAttempts))
+                } catch {
+                    // TODO: Toast Message
+                }
+            }
         }
     }
     
@@ -299,6 +396,22 @@ extension AddAttemptsFeature {
                 debugPrint(error.localizedDescription)
             }
         }
+    }
+    
+    private func postThumbnail(id: String, image: UIImage?) async throws -> String? {
+        guard let image,
+              let imageData = image.resizedPNGData() else {
+            return nil
+        }
+        
+        let fileName = "\(id)_thumbnail.jpg"
+        let mimeType = "image/png"
+        
+        return try await videoUseCase.execute(
+            fileName: fileName,
+            mimeType: mimeType,
+            value: imageData
+        )
     }
 }
 

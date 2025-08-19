@@ -14,6 +14,7 @@ import Moya
 public protocol StoriesDataSource {
     func stories(_ storyId: Int) async throws -> StoryResponseDTO
     func problem(_ request: RegisterProblemRequestDTO) async throws -> RegisterProblemResponseDTO
+    func gallery(_ request: GalleryRequestDTO) async throws
     func summary(_ storyId: Int) async throws -> StorySummaryResponseDTO
     func memo(_ request: EditMemoRequestDTO) async throws
     func delete(_ storyId: Int) async throws
@@ -92,6 +93,12 @@ public final class DefaultStoriesDataSource: StoriesDataSource {
         return data
     }
     
+    public func gallery(_ request: GalleryRequestDTO) async throws {
+        try await provider.request(
+            StoriesTarget.gallery(request)
+        )
+    }
+    
     public func updateStatus(_ storyId: Int) async throws {
         let _: BaseResponseDTO<EmptyResponseDTO> = try await provider.request(
             StoriesTarget.updateStatus(storyId)
@@ -102,6 +109,7 @@ public final class DefaultStoriesDataSource: StoriesDataSource {
 enum StoriesTarget {
     case stories(Int)
     case problem(RegisterProblemRequestDTO)
+    case gallery(GalleryRequestDTO)
     case summary(Int)
     case memo(EditMemoRequestDTO)
     case delete(Int)
@@ -120,6 +128,8 @@ extension StoriesTarget: TargetType {
             return "/\(storyId)"
         case .problem(let request):
             return "/\(request.storyId)/problems"
+        case .gallery:
+            return "/gallery"
         case .summary(let storyId):
             return "/\(storyId)/summary"
         case .memo(let request):
@@ -141,7 +151,7 @@ extension StoriesTarget: TargetType {
             return .patch
         case .delete:
             return .delete
-        case .save, .problem:
+        case .save, .problem, .gallery:
             return .post
         }
     }
@@ -156,6 +166,8 @@ extension StoriesTarget: TargetType {
             return .requestJSONEncodable(request)
         case .problem(let request):
             return request.toSafeRequestParameter()
+        case .gallery(let request):
+            return .requestJSONEncodable(request)
         }
     }
     
