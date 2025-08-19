@@ -12,7 +12,7 @@ import CalendarFeature
 import SettingFeature
 import FolderFeature
 import CompletionReportFeature
-import AddAttemptsFeature
+import AddAttemptsFeatureInterface
 import Core
 
 @Reducer

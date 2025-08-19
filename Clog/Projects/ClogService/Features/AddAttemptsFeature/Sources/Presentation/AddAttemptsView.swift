@@ -10,8 +10,10 @@ import SwiftUI
 import PhotosUI
 
 import DesignKit
+import Core
 
 import ComposableArchitecture
+import AddAttemptsFeatureInterface
 
 @ViewAction(for: AddAttemptsFeature.self)
 public struct AddAttemptsView: View {
@@ -22,7 +24,7 @@ public struct AddAttemptsView: View {
     
     public var body: some View {
         makeBodyView()
-            .background(Color.clogUI.gray800)
+            .background(Color.clogUI.gray900)
             .onAppear {
                 send(.onAppear)
             }
@@ -53,6 +55,13 @@ public struct AddAttemptsView: View {
                 },
                 crags: $store.nearByCragState.crags
             )
+            .presentDialog(
+                $store.scope(
+                    state: \.showCancelAttemptAlert,
+                    action: \.presentedAlert
+                ),
+                style: .delete
+            )
     }
     
     public init(store: StoreOf<AddAttemptsFeature>) {
@@ -62,27 +71,48 @@ public struct AddAttemptsView: View {
 
 private extension AddAttemptsView {
     private func makeBodyView() -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            makeAppBar()
-            
-            Spacer().frame(height: 20)
-            
-            ScrollView {
-                selectedCragNameView()
+        
+        let contentView = GeometryReader { geometry in
+            VStack(spacing: 0) {
+                
+                makeAppBar()
                 
                 Spacer().frame(height: 20)
                 
-                makeSelectedVideoView()
+                ScrollView {
+                    selectedCragNameView()
+                    
+                    Spacer().frame(height: 20)
+                    
+                    makeSelectedVideoView()
+                    
+                    Spacer().frame(height: 20)
+                    
+                    makeTotalTimeView()
+                    
+                    Spacer().frame(height: 12)
+                    
+                    makeMemoTextEditorView()
+                }
+                .frame(minHeight: geometry.size.height)
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
+            .frame(width: geometry.size.width)
+            
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        
+        return ZStack(alignment: .bottom) {
+            contentView
+            
+            makeSaveButton()
+                .padding(.horizontal, 16)
+        }
     }
     
     private func makeAppBar() -> some View {
         AppBar {
             Button {
-                // Back Button Tapped
+                send(.didTapBackButton)
             } label: {
                 Image.clogUI.back
                     .foregroundStyle(Color.clogUI.white)
@@ -135,14 +165,53 @@ private extension AddAttemptsView {
     }
     
     private func makeSelectedVideoView() -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2)) {
-            ForEach(store.loadedVideos) { video in
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible()), count: 2),
+            spacing: 18
+        ) {
+            ForEach(store.selectedVideos) { video in
                 VideoThumbnailView(
-                    url: video.url,
-                    timeString: video.formattedDuration,
+                    image: video.thumbnail,
+                    duration: video.formattedDuration,
                     size: size
                 )
             }
         }
+    }
+    
+    private func makeTotalTimeView() -> some View {
+        VStack(spacing: 0) {
+            Text("총 운동 시간")
+                .font(.h5)
+                .foregroundStyle(Color.clogUI.gray400)
+            
+            Text(store.totalDurationFormatted)
+                .font(.h1)
+                .foregroundStyle(Color.clogUI.gray10)
+        }
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity)
+        .background(Color.clogUI.gray800)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+    
+    private func makeMemoTextEditorView() -> some View {
+        return ClLogTextInput(
+            placeHolder: "메모를 입력해주세요.",
+            text: $store.memo,
+            isFocused: $store.focusedMemoTextEditor,
+            configuration: TextInputConfiguration(
+                state: .normal,
+                type: .editor,
+                background: .gray800
+            )
+        )
+    }
+    
+    private func makeSaveButton() -> some View {
+        GeneralButton("확인") {
+            send(.didTapSaveButton)
+        }
+        .style(.white)
     }
 }

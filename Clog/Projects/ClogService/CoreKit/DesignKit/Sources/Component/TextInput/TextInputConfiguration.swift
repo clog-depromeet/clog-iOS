@@ -13,6 +13,16 @@ public struct TextInputConfiguration {
     var state: TextInputState
     var type: TextInputType
     var background: TextInputBackground
+    
+    public init(
+        state: TextInputState,
+        type: TextInputType,
+        background: TextInputBackground
+    ) {
+        self.state = state
+        self.type = type
+        self.background = background
+    }
 }
 
 public enum TextInputType {

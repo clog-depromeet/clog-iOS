@@ -14,7 +14,7 @@ import SettingFeature
 import FolderFeature
 import EditFeature
 import CompletionReportFeature
-import AddAttemptsFeature
+import AddAttemptsFeatureInterface
 import Core
 import DesignKit
 
@@ -87,6 +87,15 @@ extension RouterFeature {
         case let .path(.element(id: id, action: .attempt(.deleteAttemptFinished))):
             state.path.pop(from: id)
             state.toast = Toast(message: "기록을 삭제했습니다.", type: .success)
+            return .none
+            
+        // add attempts view
+        case let .path(.element(id: id, action: .addAttempts(.delegate(.dismissView)))):
+            state.path.pop(from: id)
+            return .none
+            
+        case let .path(.element(id: id, action: .addAttempts(.view(.didSavedAttempts)))):
+            state.path.pop(from: id)
             return .none
             
         // Setting
