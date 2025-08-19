@@ -14,7 +14,7 @@ import SettingFeature
 import FolderFeature
 import EditFeature
 import CompletionReportFeature
-import AddAttemptsFeature
+import AddAttemptsFeatureInterface
 import Core
 import DesignKit
 
@@ -92,7 +92,10 @@ extension RouterFeature {
         // add attempts view
         case let .path(.element(id: id, action: .addAttempts(.delegate(.dismissView)))):
             state.path.pop(from: id)
-            print(#function, "pop the path")
+            return .none
+            
+        case let .path(.element(id: id, action: .addAttempts(.view(.didSavedAttempts)))):
+            state.path.pop(from: id)
             return .none
             
         // Setting
