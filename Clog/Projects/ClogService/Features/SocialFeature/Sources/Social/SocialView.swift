@@ -12,9 +12,10 @@ import ComposableArchitecture
 import DesignKit
 import SocialFeatureInterface
 
+@ViewAction(for: SocialFeature.self)
 public struct SocialView: View {
     
-    @Bindable private var store: StoreOf<SocialFeature>
+    @Bindable public var store: StoreOf<SocialFeature>
     
     public init(
         store: StoreOf<SocialFeature>
@@ -54,7 +55,7 @@ extension SocialView {
                 .foregroundStyle(Color.clogUI.gray10)
         }, rightContent: {
             Button {
-                store.send(.didTapSearchButton)
+                send(.didTapSearchButton)
             } label: {
                 Image.clogUI.magnifier
                     .resizable()
@@ -200,7 +201,7 @@ extension SocialView {
                 isFocused: .constant(true)
             )
             .onChange(of: store.searchBottomSheet.searchText) { oldValue, newValue in
-                store.send(.searchTextChanged(newValue))
+                send(.searchTextChanged(newValue))
             }
             
             Spacer().frame(height: 16)

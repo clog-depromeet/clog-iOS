@@ -9,6 +9,7 @@
 import Foundation
 import ComposableArchitecture
 import SocialDomain
+import Core
 
 @Reducer
 public struct SocialFeature {
@@ -29,14 +30,30 @@ public struct SocialFeature {
         }
     }
     
-    public enum Action: BindableAction {
+    public enum Action: BindableAction, FeatureAction, ViewAction {
         case binding(BindingAction<State>)
-        
+        case view(View)
+        case inner(InnerAction)
+        case async(AsyncAction)
+        case scope(ScopeAction)
+        case delegate(DelegateAction)
         case socialTabAction(SocialTabFeature.Action)
+    }
+    
+    
+    public enum View {
         case didTapSearchButton
         case searchTextChanged(String)
+    }
+    
+    public enum InnerAction {
+    }
+    public enum AsyncAction {
+        case searchFriends(String)
         case searchFriendsResponse(Result<[SocialFriend], Error>)
     }
+    public enum ScopeAction {}
+    public enum DelegateAction {}
     
     private enum CancelID { case search }
     
@@ -51,48 +68,116 @@ public struct SocialFeature {
         
         Reduce { state, action in
             switch action {
-            case .didTapSearchButton:
-                state.searchBottomSheet.show = true
+            case .view(let action):
+                return viewCore(&state, action)
+            case .async(let action):
+                return asyncCore(&state, action)
+            case .socialTabAction:
                 return .none
-                
-            case let .searchTextChanged(keyword):
-                if keyword.isEmpty {
-                    state.searchBottomSheet.result = []
-                    return .cancel(id: CancelID.search)
-                }
-                
-                guard keyword.count >= 2 else {
-                    state.searchBottomSheet.result = []
-                    return .cancel(id: CancelID.search)
-                }
-                
-                return .run { send in
-                    print("검색어: \(keyword)")
-                    do {
-                        let friends = try await searchRepository.loadFirstPage(keyword: keyword)
-                        await send(.searchFriendsResponse(.success(friends)))
-                    } catch {
-                        await send(.searchFriendsResponse(.failure(error)))
-                    }
-                }
-                .debounce(
-                    id: CancelID.search,
-                    for: .seconds(0.5),
-                    scheduler: DispatchQueue.main
-                )
-                
-            case let .searchFriendsResponse(.success(friends)):
-                state.searchBottomSheet.result = friends
+            case .binding, .inner, .scope, .delegate:
                 return .none
-                
-            case let .searchFriendsResponse(.failure(error)):
-                state.searchBottomSheet.result = []
-                print("Search error: \(error)")
-                return .none
-                
-            default: return .none
             }
         }
     }
 }
 
+extension SocialFeature {
+    func reducerCore(
+        _ state: inout State,
+        _ action: Action
+    ) -> Effect<Action> {
+        switch action {
+        case .socialTabAction:
+            return .none
+            
+        case .binding(_):
+            return .none
+            
+        case .view(let action):
+            return viewCore(&state, action)
+            
+        case .inner(let action):
+            return innerCore(&state, action)
+            
+        case .async(let action):
+            return asyncCore(&state, action)
+            
+        case .scope(let action):
+            return scopeCore(&state, action)
+            
+        case .delegate(let action):
+            return delegateCore(&state, action)
+        }
+    }
+    
+    // MARK: - View Core
+    func viewCore(
+        _ state: inout State,
+        _ action: View
+    ) -> Effect<Action> {
+        switch action {
+        case .didTapSearchButton:
+            state.searchBottomSheet.show = true
+            return .none
+            
+        case let .searchTextChanged(keyword):
+            print(keyword)
+            state.searchBottomSheet.searchText = keyword
+            
+            if keyword.isEmpty || keyword.count < 2 {
+                state.searchBottomSheet.result = []
+                return .cancel(id: CancelID.search)
+            }
+            
+            return .run { send in
+                try await Task.sleep(nanoseconds: 500_000_000)
+                await send(.async(.searchFriends(keyword)))
+            }
+            .cancellable(id: CancelID.search)
+        }
+    }
+    
+    // MARK: - Inner Core
+    func innerCore(
+        _ state: inout State,
+        _ action: InnerAction
+    ) -> Effect<Action> { }
+    
+    // MARK: - Async Core
+    func asyncCore(
+        _ state: inout State,
+        _ action: AsyncAction
+    ) -> Effect<Action> {
+        switch action {
+        case let .searchFriends(keyword):
+            return .run { send in
+                do {
+                    let friends = try await searchRepository.loadFirstPage(keyword: keyword)
+                    await send(.async(.searchFriendsResponse(.success(friends))))
+                } catch {
+                    await send(.async(.searchFriendsResponse(.failure(error))))
+                }
+            }
+            
+        case let .searchFriendsResponse(.success(friends)):
+            state.searchBottomSheet.result = friends
+            return .none
+            
+        case let .searchFriendsResponse(.failure(error)):
+            state.searchBottomSheet.result = []
+            return .none
+        }
+    }
+    
+    // MARK: - Scope Core
+    func scopeCore(
+        _ state: inout State,
+        _ action: ScopeAction
+    ) -> Effect<Action> { }
+    
+    // MARK: - Delegate Core
+    func delegateCore(
+        _ state: inout State,
+        _ action: DelegateAction
+    ) -> Effect<Action> { }
+}

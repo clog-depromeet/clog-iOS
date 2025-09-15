@@ -12,6 +12,7 @@ import SocialDomain
 public struct SocialFriendResponseDTO: Decodable {
     let id: Int
     let name: String
+    let height: Int?
     let armSpan: Int?
     let instagramUrl: String?
     let isFollowing: Bool
