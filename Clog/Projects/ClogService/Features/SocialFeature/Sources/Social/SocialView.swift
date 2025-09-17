@@ -84,7 +84,6 @@ extension SocialView {
                                 .font(.b1)
                                 .foregroundStyle(Color.clogUI.gray400)
                             
-                            
                             Spacer()
                             
                             Button {

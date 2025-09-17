@@ -22,7 +22,13 @@ public struct SocialTabFeature {
         public var followUsers: [SocialFriend] = []
         public var followingUsers: [SocialFriend] = []
         public var recommendFriends: [SocialFriend] = []
+        public var profileMoreBottomSheet = ProfileMoreBottomSheet()
         public init() { }
+        
+        public struct ProfileMoreBottomSheet: Equatable {
+            public var show = false
+            public var selectedUser: SocialFriend?
+        }
     }
     
     public enum Action: BindableAction, FeatureAction, ViewAction {
@@ -39,6 +45,7 @@ public struct SocialTabFeature {
         case selectTab(SocialTabFeature.State.CurrentTab)
         case followButtonTapped(SocialFriend)
         case moreButtonTapped(SocialFriend)
+        case unfollowFromBottomSheet
     }
     
     public enum InnerAction { }
@@ -88,9 +95,17 @@ public struct SocialTabFeature {
             return .run { send in
                 await send(.async(user.isFollowing ? .unfollowUser(user) : .followUser(user)))
             }
-        case .moreButtonTapped:
-            // TODO: 팔로우 - 더보기
+        case .moreButtonTapped(let user):
+            state.profileMoreBottomSheet.show = true
+            state.profileMoreBottomSheet.selectedUser = user
             return .none
+        case .unfollowFromBottomSheet:
+            guard let user = state.profileMoreBottomSheet.selectedUser else { return .none }
+            state.profileMoreBottomSheet.show = false
+            state.profileMoreBottomSheet.selectedUser = nil
+            return .run { send in
+                await send(.async(.unfollowUser(user)))
+            }
         }
     }
     

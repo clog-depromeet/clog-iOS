@@ -42,6 +42,10 @@ public struct SocialTabView: View {
                 )
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .padding(.horizontal, 16)
+        }
+        .bottomSheet(isPresented: $store.profileMoreBottomSheet.show) {
+            makeProfileMoreBottomSheet()
         }
         .onAppear {
             send(.onAppear)
@@ -139,6 +143,33 @@ public struct SocialTabView: View {
         .frame(maxWidth: .infinity)
         .background(Color.clogUI.gray800.ignoresSafeArea())
         .tag(tab)
+    }
+    
+    private func makeProfileMoreBottomSheet() -> some View {
+        VStack(alignment: .leading) {
+            Button {
+                
+            } label: {
+                Text("프로필 공유")
+                    .font(.h4)
+                    .foregroundStyle(Color.clogUI.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            
+            Button {
+                send(.unfollowFromBottomSheet)
+            } label: {
+                Text("팔로우 취소")
+                    .font(.h4)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 12)
+                    .foregroundStyle(Color.clogUI.fail)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding(.horizontal, 16)
     }
 }
 
