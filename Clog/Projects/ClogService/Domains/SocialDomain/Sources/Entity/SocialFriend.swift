@@ -13,7 +13,7 @@ public struct SocialFriend: Identifiable, Equatable {
     public let profileImageUrl: String?
     public let nickName: String
     public let tag: String
-    public let isFollowing: Bool
+    public var isFollowing: Bool
     public let isClimbedWithin7Days: Bool
     
     public init(

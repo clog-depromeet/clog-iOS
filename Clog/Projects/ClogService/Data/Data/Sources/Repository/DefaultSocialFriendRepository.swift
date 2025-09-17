@@ -23,4 +23,12 @@ public struct DefaultSocialFriendRepository: SocialFriendRepository {
     public func fetchFollowings() async throws -> [SocialFriend] {
         try await dataSource.followings().map { $0.toDomain() }
     }
+
+    public func followUser(userId: String) async throws -> Bool {
+        try await dataSource.followUser(userId: userId)
+    }
+
+    public func unfollowUser(userId: String) async throws -> Bool {
+        try await dataSource.unfollowUser(userId: userId)
+    }
 }

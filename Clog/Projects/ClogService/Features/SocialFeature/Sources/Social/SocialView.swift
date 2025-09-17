@@ -209,7 +209,7 @@ extension SocialView {
             ForEach(store.searchBottomSheet.result) { friend in
                 SocialFriendListCell(
                     friend: friend) {
-                        print("tap!")
+                        send(.didTapFollowButton(friend))
                     }
             }
             

@@ -40,18 +40,22 @@ public struct SocialFeature {
         case socialTabAction(SocialTabFeature.Action)
     }
     
-    
     public enum View {
         case didTapSearchButton
         case searchTextChanged(String)
+        case didTapFollowButton(SocialFriend)
     }
     
-    public enum InnerAction {
-    }
+    public enum InnerAction { }
+    
     public enum AsyncAction {
         case searchFriends(String)
         case searchFriendsResponse(Result<[SocialFriend], Error>)
+        case followUser(String)
+        case unfollowUser(String)
+        case followResponse(Result<String, Error>)
     }
+    
     public enum ScopeAction {}
     public enum DelegateAction {}
     
@@ -134,6 +138,17 @@ extension SocialFeature {
                 await send(.async(.searchFriends(keyword)))
             }
             .cancellable(id: CancelID.search)
+            
+        case .didTapFollowButton(let user):
+            if user.isFollowing {
+                return .run { send in
+                    await send(.async(.unfollowUser(user.id)))
+                }
+            } else {
+                return .run { send in
+                    await send(.async(.followUser(user.id)))
+                }
+            }
         }
     }
     
@@ -165,6 +180,37 @@ extension SocialFeature {
             
         case let .searchFriendsResponse(.failure(error)):
             state.searchBottomSheet.result = []
+            return .none
+            
+        case .followUser(let userId):
+            return .run { send in
+                do {
+                    try await socialRepository.followUser(userId: userId)
+                    await send(.async(.followResponse(.success(userId))))
+                } catch {
+                    await send(.async(.followResponse(.failure(error))))
+                }
+            }
+            
+        case .unfollowUser(let userId):
+            return .run { send in
+                do {
+                    try await socialRepository.unfollowUser(userId: userId)
+                    await send(.async(.followResponse(.success(userId))))
+                } catch {
+                    await send(.async(.followResponse(.failure(error))))
+                }
+            }
+            
+        case .followResponse(.success(let userId)):
+            for index in state.searchBottomSheet.result.indices {
+                if state.searchBottomSheet.result[index].id == userId {
+                    state.searchBottomSheet.result[index].isFollowing.toggle()
+                }
+            }
+            return .none
+            
+        case .followResponse(.failure(let error)):
             return .none
         }
     }
