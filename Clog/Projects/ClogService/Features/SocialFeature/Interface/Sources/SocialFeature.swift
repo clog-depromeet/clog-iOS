@@ -207,6 +207,15 @@ extension SocialFeature {
             if let index = state.searchBottomSheet.result.firstIndex(where: { $0.id == user.id }) {
                 state.searchBottomSheet.result[index] = user
             }
+            
+            if user.isFollowing {
+                if !state.socialTabState.followingUsers.contains(where: { $0.id == user.id }) {
+                    state.socialTabState.followingUsers.append(user)
+                }
+            } else {
+                state.socialTabState.followingUsers.removeAll { $0.id == user.id }
+            }
+
             return .none
             
         case .followResponse(.failure(let error)):

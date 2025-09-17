@@ -32,18 +32,20 @@ public struct SocialTabView: View {
             TabView(selection: $store.selectedTab) {
                 
                 makeSocialListView(
-                    [],
+                    store.followUsers,
                     tab: .follower
                 )
                 
                 makeSocialListView(
-                    store.socialFriends.filter { $0.isFollowing },
+                    store.followingUsers,
                     tab: .following
                 )
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        
+        .onAppear {
+            send(.onAppear)
+        }
     }
     
     private var followFollowingButtonView: some View {

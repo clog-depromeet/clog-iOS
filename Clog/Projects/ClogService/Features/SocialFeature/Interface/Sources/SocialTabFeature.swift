@@ -19,7 +19,8 @@ public struct SocialTabFeature {
     @ObservableState
     public struct State: Equatable {
         public var selectedTab: CurrentTab = .follower
-        public var socialFriends: [SocialFriend] = []
+        public var followUsers: [SocialFriend] = []
+        public var followingUsers: [SocialFriend] = []
         public var recommendFriends: [SocialFriend] = SocialFriend.dummy()
         public init() { }
     }
@@ -34,7 +35,7 @@ public struct SocialTabFeature {
     }
     
     public enum View {
-        // case onAppear
+        case onAppear
         case selectTab(SocialTabFeature.State.CurrentTab)
         case followButtonTapped(SocialFriend)
         case moreButtonTapped(SocialFriend)
@@ -42,8 +43,10 @@ public struct SocialTabFeature {
     
     public enum InnerAction { }
     public enum AsyncAction {
-        // fetch following
-        // fetch follower
+        case fetchFollowers
+        case fetchFollowings
+        case responseFollowers([SocialFriend])
+        case responseFollowings([SocialFriend])
     }
     public enum ScopeAction { }
     public enum DelegateAction { }
@@ -56,7 +59,8 @@ public struct SocialTabFeature {
             switch action {
             case .view(let action):
                 return viewCore(&state, action)
-                
+            case .async(let action):
+                return asyncCore(&state, action)
             default:
                 return .none
             }
@@ -65,6 +69,15 @@ public struct SocialTabFeature {
     
     func viewCore(_ state: inout State, _ action: View) -> Effect<Action> {
         switch action {
+        case .onAppear:
+            return .merge(
+                .run { send in
+                    await send(.async(.fetchFollowers))
+                },
+                .run { send in
+                    await send(.async(.fetchFollowings))
+                }
+            )
         case .selectTab(let tab):
             state.selectedTab = tab
             return .none
@@ -73,6 +86,30 @@ public struct SocialTabFeature {
             return .none
         case .moreButtonTapped:
             // TODO: 팔로우 - 더보기
+            return .none
+        }
+    }
+    
+    func asyncCore(
+        _ state: inout State,
+        _ action: AsyncAction
+    ) -> Effect<Action> {
+        switch action {
+        case .fetchFollowers:
+            return .run { send in
+                let followers = try? await socialRepository.fetchFollowers()
+                await send(.async(.responseFollowers(followers ?? [])))
+            }
+        case .fetchFollowings:
+            return .run { send in
+                let followings = try? await socialRepository.fetchFollowings()
+                await send(.async(.responseFollowings(followings ?? [])))
+            }
+        case .responseFollowers(let users):
+            state.followUsers = users
+            return .none
+        case .responseFollowings(let users):
+            state.followingUsers = users
             return .none
         }
     }

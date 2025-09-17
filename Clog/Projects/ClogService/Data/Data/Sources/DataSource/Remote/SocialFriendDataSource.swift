@@ -23,13 +23,13 @@ public final class DefaultSocialFriendDataSource: SocialFriendDataSource {
     public init() {}
     
     public func followings() async throws -> [SocialFriendResponseDTO] {
-        let response: BaseResponseDTO<BaseContentsResponse<[SocialFriendResponseDTO], BaseMetaResponseDTO>> = try await provider.request(.followings)
-        return response.data?.contents ?? []
+        let response: BaseResponseDTO<[SocialFriendResponseDTO]> = try await provider.request(.followings)
+        return response.data ?? []
     }
 
     public func followers() async throws -> [SocialFriendResponseDTO] {
-        let response: BaseResponseDTO<BaseContentsResponse<[SocialFriendResponseDTO], BaseMetaResponseDTO>> = try await provider.request(.followers)
-        return response.data?.contents ?? []
+        let response: BaseResponseDTO<[SocialFriendResponseDTO]> = try await provider.request(.followers)
+        return response.data ?? []
     }
 
     public func followUser(userId: String) async throws -> Bool {
