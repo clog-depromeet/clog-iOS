@@ -21,7 +21,7 @@ public struct SocialTabFeature {
         public var selectedTab: CurrentTab = .follower
         public var followUsers: [SocialFriend] = []
         public var followingUsers: [SocialFriend] = []
-        public var recommendFriends: [SocialFriend] = SocialFriend.dummy()
+        public var recommendFriends: [SocialFriend] = []
         public init() { }
     }
     
@@ -47,6 +47,9 @@ public struct SocialTabFeature {
         case fetchFollowings
         case responseFollowers([SocialFriend])
         case responseFollowings([SocialFriend])
+        case followUser(SocialFriend)
+        case unfollowUser(SocialFriend)
+        case updatedFollow(SocialFriend?)
     }
     public enum ScopeAction { }
     public enum DelegateAction { }
@@ -81,9 +84,10 @@ public struct SocialTabFeature {
         case .selectTab(let tab):
             state.selectedTab = tab
             return .none
-        case .followButtonTapped:
-            // TODO: 팔로우 / 팔로잉
-            return .none
+        case .followButtonTapped(let user):
+            return .run { send in
+                await send(.async(user.isFollowing ? .unfollowUser(user) : .followUser(user)))
+            }
         case .moreButtonTapped:
             // TODO: 팔로우 - 더보기
             return .none
@@ -110,6 +114,25 @@ public struct SocialTabFeature {
             return .none
         case .responseFollowings(let users):
             state.followingUsers = users
+            return .none
+            
+        case .followUser(let user):
+            return .run { send in
+                let user = try? await socialRepository.followUser(user: user)
+                await send(.async(.updatedFollow(user)))
+            }
+        case .unfollowUser(let user):
+            return .run { send in
+                let user = try? await socialRepository.unfollowUser(user: user)
+                await send(.async(.updatedFollow(user)))
+            }
+        case .updatedFollow(let user):
+            guard let user else { return .none }
+            if user.isFollowing {
+                state.followingUsers.append(user)
+            } else {
+                state.followingUsers.removeAll(where: { $0.id == user.id })
+            }
             return .none
         }
     }

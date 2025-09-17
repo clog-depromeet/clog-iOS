@@ -141,14 +141,8 @@ extension SocialFeature {
             .cancellable(id: CancelID.search)
             
         case .didTapFollowButton(let user):
-            if user.isFollowing {
-                return .run { send in
-                    await send(.async(.unfollowUser(user)))
-                }
-            } else {
-                return .run { send in
-                    await send(.async(.followUser(user)))
-                }
+            return .run { send in
+                await send(.async(user.isFollowing ? .unfollowUser(user) : .followUser(user)))
             }
         }
     }

@@ -124,6 +124,8 @@ public struct SocialTabView: View {
             
             Spacer()
             
+            /*
+             // TODO: 서버 추천 목록 api 추가 시 기능 연결
             if tab == .following {
                 ForEach(store.state.recommendFriends.filter { !$0.isFollowing }.prefix(3)) { friend in
                     SocialFriendListCell(friend: friend) {
@@ -131,6 +133,7 @@ public struct SocialTabView: View {
                     }
                 }
             }
+            */
         }
         .padding(.top, 69)
         .frame(maxWidth: .infinity)
