@@ -15,8 +15,8 @@ import Dependencies
 public protocol SocialFriendRepository {
     func fetchFollowers() async throws -> [SocialFriend]
     func fetchFollowings() async throws -> [SocialFriend]
-    func followUser(userId: String) async throws -> Bool
-    func unfollowUser(userId: String) async throws -> Bool
+    func followUser(user: SocialFriend) async throws -> SocialFriend
+    func unfollowUser(user: SocialFriend) async throws -> SocialFriend
 }
 
 public enum SocialFriendRepositoryDependencyKey: DependencyKey {

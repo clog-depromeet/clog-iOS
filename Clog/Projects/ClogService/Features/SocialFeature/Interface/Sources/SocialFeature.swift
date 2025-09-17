@@ -21,6 +21,7 @@ public struct SocialFeature {
         
         public var socialTabState: SocialTabFeature.State = .init()
         public var searchBottomSheet = SearchBottomSheet()
+        public var followerUsers = [SocialFriend]()
         public init() { }
         
         public struct SearchBottomSheet: Equatable {
@@ -51,9 +52,9 @@ public struct SocialFeature {
     public enum AsyncAction {
         case searchFriends(String)
         case searchFriendsResponse(Result<[SocialFriend], Error>)
-        case followUser(String)
-        case unfollowUser(String)
-        case followResponse(Result<String, Error>)
+        case followUser(SocialFriend)
+        case unfollowUser(SocialFriend)
+        case followResponse(Result<SocialFriend, Error>)
     }
     
     public enum ScopeAction {}
@@ -142,11 +143,11 @@ extension SocialFeature {
         case .didTapFollowButton(let user):
             if user.isFollowing {
                 return .run { send in
-                    await send(.async(.unfollowUser(user.id)))
+                    await send(.async(.unfollowUser(user)))
                 }
             } else {
                 return .run { send in
-                    await send(.async(.followUser(user.id)))
+                    await send(.async(.followUser(user)))
                 }
             }
         }
@@ -182,31 +183,29 @@ extension SocialFeature {
             state.searchBottomSheet.result = []
             return .none
             
-        case .followUser(let userId):
+        case .followUser(let user):
             return .run { send in
                 do {
-                    try await socialRepository.followUser(userId: userId)
-                    await send(.async(.followResponse(.success(userId))))
+                    let user = try await socialRepository.followUser(user: user)
+                    await send(.async(.followResponse(.success(user))))
                 } catch {
                     await send(.async(.followResponse(.failure(error))))
                 }
             }
             
-        case .unfollowUser(let userId):
+        case .unfollowUser(let user):
             return .run { send in
                 do {
-                    try await socialRepository.unfollowUser(userId: userId)
-                    await send(.async(.followResponse(.success(userId))))
+                    let user = try await socialRepository.unfollowUser(user: user)
+                    await send(.async(.followResponse(.success(user))))
                 } catch {
                     await send(.async(.followResponse(.failure(error))))
                 }
             }
             
-        case .followResponse(.success(let userId)):
-            for index in state.searchBottomSheet.result.indices {
-                if state.searchBottomSheet.result[index].id == userId {
-                    state.searchBottomSheet.result[index].isFollowing.toggle()
-                }
+        case .followResponse(.success(let user)):
+            if let index = state.searchBottomSheet.result.firstIndex(where: { $0.id == user.id }) {
+                state.searchBottomSheet.result[index] = user
             }
             return .none
             
