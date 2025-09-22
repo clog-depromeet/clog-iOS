@@ -12,9 +12,10 @@ import ComposableArchitecture
 import DesignKit
 import SocialFeatureInterface
 
+@ViewAction(for: SocialFeature.self)
 public struct SocialView: View {
     
-    @Bindable private var store: StoreOf<SocialFeature>
+    @Bindable public var store: StoreOf<SocialFeature>
     
     public init(
         store: StoreOf<SocialFeature>
@@ -42,6 +43,9 @@ extension SocialView {
             makeFollowersFollowingView()
         }
         .background(Color.clogUI.gray800)
+        .bottomSheet(isPresented: $store.searchBottomSheet.show) {
+            makeSearchUserBottomSheet()
+        }
     }
     
     private func makeAppBar() -> some View {
@@ -50,9 +54,14 @@ extension SocialView {
                 .font(.h3)
                 .foregroundStyle(Color.clogUI.gray10)
         }, rightContent: {
-            Image.clogUI.magnifier
-                .resizable()
-                .frame(24)
+            Button {
+                send(.didTapSearchButton)
+            } label: {
+                Image.clogUI.magnifier
+                    .resizable()
+                    .frame(24)
+                    .foregroundStyle(Color.clogUI.white)
+            }
         })
     }
     
@@ -74,7 +83,6 @@ extension SocialView {
                             Text("#1234")
                                 .font(.b1)
                                 .foregroundStyle(Color.clogUI.gray400)
-                            
                             
                             Spacer()
                             
@@ -176,6 +184,38 @@ extension SocialView {
                 action: \.socialTabAction
             )
         )
+    }
+    
+    private func makeSearchUserBottomSheet() -> some View {
+        VStack(alignment: .leading) {
+            Text("닉네임 검색")
+                .font(.h3)
+                .foregroundStyle(Color.clogUI.white)
+            
+            Spacer().frame(height: 10)
+            
+            ClLogTextInput(
+                placeHolder: "닉네임을 입력해주세요",
+                text: $store.searchBottomSheet.searchText,
+                isFocused: .constant(true)
+            )
+            .onChange(of: store.searchBottomSheet.searchText) { oldValue, newValue in
+                send(.searchTextChanged(newValue))
+            }
+            
+            Spacer().frame(height: 16)
+            
+            ForEach(store.searchBottomSheet.result) { friend in
+                SocialFriendListCell(
+                    friend: friend) {
+                        send(.didTapFollowButton(friend))
+                    }
+            }
+            
+            Spacer()
+        }
+        .padding(16)
+        .frame(height: 300) // TODO: 높이 조절 필요
     }
 }
 

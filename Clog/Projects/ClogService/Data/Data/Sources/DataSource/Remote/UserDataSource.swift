@@ -16,6 +16,7 @@ public protocol UserDataSource {
     func logout() async throws
     func me() async throws -> UserResponseDTO
     func name(_ request: UserNameRequestDTO) async throws
+    func search(cursor: Double?, keyword: String) async throws -> (items: [SocialFriendResponseDTO]?, meta: BaseMetaResponseDTO?)
 }
 
 public final class DefaultUserDataSource: UserDataSource {
@@ -55,6 +56,17 @@ public final class DefaultUserDataSource: UserDataSource {
             UserTarget.name(request)
         )
     }
+    
+    public func search(cursor: Double?, keyword: String) async throws -> (items: [SocialFriendResponseDTO]?, meta: BaseMetaResponseDTO?) {
+        let response: BaseResponseDTO<BaseContentsResponse<[SocialFriendResponseDTO], BaseMetaResponseDTO>> = try await provider.request(
+            .search(
+                cursor: cursor,
+                keyword: keyword
+            )
+        )
+        
+        return (response.data?.contents, response.data?.meta)
+    }
 }
 
 enum UserTarget {
@@ -62,6 +74,7 @@ enum UserTarget {
     case logout
     case me
     case name(UserNameRequestDTO)
+    case search(cursor: Double?, keyword: String)
 }
 
 extension UserTarget: TargetType {
@@ -75,6 +88,7 @@ extension UserTarget: TargetType {
         case .logout: "/log-out"
         case .me: "/me"
         case .name: "/name"
+        case .search: "/search"
         }
     }
     
@@ -84,6 +98,7 @@ extension UserTarget: TargetType {
         case .logout: .post
         case .me: .get
         case .name: .patch
+        case .search: .get
         }
     }
     
@@ -99,6 +114,15 @@ extension UserTarget: TargetType {
             return .requestPlain
         case .name(let request):
             return .requestJSONEncodable(request)
+        case .search(let cursor, let keyword):
+            let parameters: [String: Any?] = [
+                "cursor": cursor,
+                "keyword": keyword
+            ]
+            return .requestParameters(
+                parameters: parameters.compactMapValues { $0 },
+                encoding: URLEncoding.default
+            )
         }
     }
     
