@@ -32,6 +32,28 @@ public struct SocialFriend: Identifiable, Equatable {
         self.isClimbedWithin7Days = isClimbedWithin7Days
     }
     
+    public func toggleFollowing() -> Self {
+        with(isFollowing: !isFollowing)
+    }
+    
+    private func with(
+        id: String? = nil,
+        profileImageUrl: String? = nil,
+        nickName: String? = nil,
+        tag: String? = nil,
+        isFollowing: Bool? = nil,
+        isClimbedWithin7Days: Bool? = nil
+    ) -> Self {
+        .init(
+            id: id ?? self.id,
+            profileImageUrl: profileImageUrl ?? self.profileImageUrl,
+            nickName: nickName ?? self.nickName,
+            tag: tag ?? self.tag,
+            isFollowed: isFollowing ?? self.isFollowing,
+            isClimbedWithin7Days: isClimbedWithin7Days ?? self.isClimbedWithin7Days
+        )
+    }
+    
     public static func dummy() -> [Self] {
         return [
             SocialFriend(
