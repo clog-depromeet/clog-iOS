@@ -14,9 +14,17 @@ import DesignKit
 public struct SocialFriendListCell: View {
     
     private let friend: SocialFriend
+    private let onFollowTap: () -> Void
+    private let onMoreTap: (() -> Void)?
     
-    public init(friend: SocialFriend) {
+    public init(
+        friend: SocialFriend,
+        onFollowTap: @escaping () -> Void,
+        onMoreTap: (() -> Void)? = nil
+    ) {
         self.friend = friend
+        self.onFollowTap = onFollowTap
+        self.onMoreTap = onMoreTap
     }
     
     public var body: some View {
@@ -42,10 +50,11 @@ public struct SocialFriendListCell: View {
             Spacer()
             
             Button {
-                
+                onFollowTap()
             } label: {
                 HStack {
                     Text(friend.isFollowing == true ? "팔로잉" : "팔로우")
+                        .font(.b2)
                         .foregroundStyle(
                             friend.isFollowing == true
                             ? Color.clogUI.white
@@ -62,16 +71,17 @@ public struct SocialFriendListCell: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
-            
             Spacer()
                 .frame(width: 12)
             
-            Button {
-                
-            } label: {
-                Image.clogUI.icn_dot_vertical
-                    .resizable()
-                    .frame(20)
+            if let action = onMoreTap {
+                Button {
+                    action()
+                } label: {
+                    Image.clogUI.icn_dot_vertical
+                        .resizable()
+                        .frame(20)
+                }
             }
                 
         }

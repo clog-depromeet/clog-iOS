@@ -12,14 +12,23 @@ import SocialDomain
 
 @Reducer
 public struct SocialTabFeature {
+    @Dependency(\.socialFriendRepository) private var socialRepository
     
     public init() {}
     
     @ObservableState
     public struct State: Equatable {
         public var selectedTab: CurrentTab = .follower
-        public var socialFriends: [SocialFriend] = SocialFriend.dummy()
+        public var followUsers: [SocialFriend] = []
+        public var followingUsers: [SocialFriend] = []
+        public var recommendFriends: [SocialFriend] = []
+        public var profileMoreBottomSheet = ProfileMoreBottomSheet()
         public init() { }
+        
+        public struct ProfileMoreBottomSheet: Equatable {
+            public var show = false
+            public var selectedUser: SocialFriend?
+        }
     }
     
     public enum Action: BindableAction, FeatureAction, ViewAction {
@@ -32,11 +41,23 @@ public struct SocialTabFeature {
     }
     
     public enum View {
+        case onAppear
         case selectTab(SocialTabFeature.State.CurrentTab)
+        case followButtonTapped(SocialFriend)
+        case moreButtonTapped(SocialFriend)
+        case unfollowFromBottomSheet
     }
     
     public enum InnerAction { }
-    public enum AsyncAction { }
+    public enum AsyncAction {
+        case fetchFollowers
+        case fetchFollowings
+        case responseFollowers([SocialFriend])
+        case responseFollowings([SocialFriend])
+        case followUser(SocialFriend)
+        case unfollowUser(SocialFriend)
+        case updatedFollow(SocialFriend?)
+    }
     public enum ScopeAction { }
     public enum DelegateAction { }
     
@@ -48,7 +69,8 @@ public struct SocialTabFeature {
             switch action {
             case .view(let action):
                 return viewCore(&state, action)
-                
+            case .async(let action):
+                return asyncCore(&state, action)
             default:
                 return .none
             }
@@ -57,25 +79,85 @@ public struct SocialTabFeature {
     
     func viewCore(_ state: inout State, _ action: View) -> Effect<Action> {
         switch action {
+        case .onAppear:
+            return .merge(
+                .run { send in
+                    await send(.async(.fetchFollowers))
+                },
+                .run { send in
+                    await send(.async(.fetchFollowings))
+                }
+            )
         case .selectTab(let tab):
             state.selectedTab = tab
+            return .none
+        case .followButtonTapped(let user):
+            return .run { send in
+                await send(.async(user.isFollowing ? .unfollowUser(user) : .followUser(user)))
+            }
+        case .moreButtonTapped(let user):
+            state.profileMoreBottomSheet.show = true
+            state.profileMoreBottomSheet.selectedUser = user
+            return .none
+        case .unfollowFromBottomSheet:
+            guard let user = state.profileMoreBottomSheet.selectedUser else { return .none }
+            state.profileMoreBottomSheet.show = false
+            state.profileMoreBottomSheet.selectedUser = nil
+            return .run { send in
+                await send(.async(.unfollowUser(user)))
+            }
+        }
+    }
+    
+    func asyncCore(
+        _ state: inout State,
+        _ action: AsyncAction
+    ) -> Effect<Action> {
+        switch action {
+        case .fetchFollowers:
+            return .run { send in
+                let followers = try? await socialRepository.fetchFollowers()
+                await send(.async(.responseFollowers(followers ?? [])))
+            }
+        case .fetchFollowings:
+            return .run { send in
+                let followings = try? await socialRepository.fetchFollowings()
+                await send(.async(.responseFollowings(followings ?? [])))
+            }
+        case .responseFollowers(let users):
+            state.followUsers = users
+            return .none
+        case .responseFollowings(let users):
+            state.followingUsers = users
+            return .none
+            
+        case .followUser(let user):
+            return .run { send in
+                let user = try? await socialRepository.followUser(user: user)
+                await send(.async(.updatedFollow(user)))
+            }
+        case .unfollowUser(let user):
+            return .run { send in
+                let user = try? await socialRepository.unfollowUser(user: user)
+                await send(.async(.updatedFollow(user)))
+            }
+        case .updatedFollow(let user):
+            guard let user else { return .none }
+            if user.isFollowing {
+                state.followingUsers.append(user)
+            } else {
+                state.followingUsers.removeAll(where: { $0.id == user.id })
+            }
             return .none
         }
     }
 }
 
 public extension SocialTabFeature.State {
-    enum CurrentTab: String, Hashable {
-        case follower = "팔로워"
-        case following = "팔로잉"
+    enum CurrentTab: String, CaseIterable, Identifiable {
+        public var id: String { self.rawValue }
         
-        public var emptyListDescription: String {
-            switch self {
-            case .follower:
-                "아직 나를 팔로우한 친구가 없어요.\n지금 QR코드를 공유하고, 나를 팔로우할 친구를 만나보세요!"
-            case .following:
-                "관심 있는 친구를 팔로우 하면\n더 다양한 활동을 볼 수 있어요."
-            }
-        }
+        case follower
+        case following
     }
 }

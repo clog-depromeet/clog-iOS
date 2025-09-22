@@ -17,6 +17,7 @@ import FolderFeature
 import CalendarFeature
 import ReportFeature
 import SocialFeature
+import SocialFeatureInterface
 
 // 외부 Module
 import ComposableArchitecture
@@ -32,32 +33,30 @@ public struct MainFeature {
         var selectedTab: Int = 0
         
         // Video Tab State
-        var vidoeTabState: VideoFeature.State = .init()
+        var vidoeTabState: VideoFeature.State
         
         // Record State
         var recordState: RecordHomeFeature.State?
         
         // FolderTab State
-        var folderTabState: FolderTabFeature.State = .init()
+        var folderTabState: FolderTabFeature.State
         
         // Folder State
-        var folderState: FolderFeature.State = .init()
+        var folderState: FolderFeature.State
         
         // CalendarMain State
-        var calendarMainState: CalendarMainFeature.State = .init()
+        var calendarMainState: CalendarMainFeature.State
         
         // CalendarDetail State
         var calendarDetailState: CalendarDetailFeature.State?
         
         // Report State
-        var reportState: ReportFeature.State = .init()
+        var reportState: ReportFeature.State
         
-        var socialState: SocialFeature.State = .init()
+        var socialState: SocialFeature.State
         
         var isRecording: Bool = false
-        
         var pushToCalendarDetail: Int?
-        
         var toast: Toast?
         
         var tabImages: [Image] = [
@@ -66,6 +65,15 @@ public struct MainFeature {
             Image.clogUI.person,
             Image.clogUI.report
         ]
+        
+        public init() {
+            self.vidoeTabState = VideoFeature.State()
+            self.folderTabState = FolderTabFeature.State()
+            self.folderState = FolderFeature.State()
+            self.calendarMainState = CalendarMainFeature.State()
+            self.reportState = ReportFeature.State()
+            self.socialState = SocialFeature.State()
+        }
     }
     
     public enum Action: BindableAction {
