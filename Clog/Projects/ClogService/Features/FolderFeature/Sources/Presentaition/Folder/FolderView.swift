@@ -27,20 +27,26 @@ public struct FolderView: ViewProtocol {
     }
     
     public var body: some View {
-        makeBodyView()
-            .padding(.vertical, 18)
-            .background(Color.clogUI.gray800)
-            .onAppear {
-                store.send(.onAppear)
+        ZStack(alignment: .bottomTrailing) {
+            makeBodyView()
+                .padding(.vertical, 18)
+                .background(Color.clogUI.gray800)
+                .onAppear {
+                    store.send(.onAppear)
+                }
+                .bottomSheet(isPresented: $store.showSelectGradeBottomSheet, height: 276) {
+                    showSelectGradeBottomSheet()
+                        .padding(16)
+                }
+                .bottomSheet(isPresented: $store.showSelectCragBottomSheet) {
+                    showSelectCragBottomSheet()
+                        .padding(16)
+                }
+            
+            FloatingActionButton(image: Image.clogUI.gallery) {
+                store.send(.moveToAddAttempts)
             }
-            .bottomSheet(isPresented: $store.showSelectGradeBottomSheet, height: 276) {
-                showSelectGradeBottomSheet()
-                    .padding(16)
-            }
-            .bottomSheet(isPresented: $store.showSelectCragBottomSheet) {
-                showSelectCragBottomSheet()
-                    .padding(16)
-            }
+        }
     }
 }
 

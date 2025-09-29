@@ -105,6 +105,7 @@ public struct MainFeature {
             case pushToCalendarDetail(Int)
             case pushToSetting
             case pushToAttempt(Int)
+            case pushToAddAttempts
             case presentToEdit(URL, [Double])
             case pushToCompletionReport(Int?)
         }
@@ -296,6 +297,9 @@ private extension MainFeature {
         switch action {
         case .moveToAttempt(let attemptId):
             return .send(.routerAction(.pushToAttempt(attemptId)))
+            
+        case .moveToAddAttempts:
+            return .send(.routerAction(.pushToAddAttempts))
         default:
             return .none
         }

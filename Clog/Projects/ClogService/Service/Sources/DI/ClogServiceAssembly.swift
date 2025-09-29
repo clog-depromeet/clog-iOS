@@ -233,5 +233,12 @@ public struct ClogServiceAssembly: Assembly {
                 dataSource: DefaultUserDataSource()
             )
         }
+        container.register(AddProblemsUseCase.self) { _ in
+            DefaultAddProblemsUseCase(
+                repository: DefaultAddProblemsRepository(
+                    dataSource: DefaultStoriesDataSource()
+                )
+            )
+        }
     }
 }

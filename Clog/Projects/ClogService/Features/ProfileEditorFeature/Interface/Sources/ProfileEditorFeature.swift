@@ -11,9 +11,11 @@ import Foundation
 import ComposableArchitecture
 
 import Core
+import AccountDomain
 
 @Reducer
 public struct ProfileEditorFeature {
+    @Dependency(\.accountUseCase) private var accountUseCase
     
     public init() {}
     
@@ -44,12 +46,18 @@ public struct ProfileEditorFeature {
     }
     
     public enum View {
+        case onAppear
         case backButtonTapped
         case genderTapped(Gender)
         case focusOut
     }
-    public enum InnerAction { }
-    public enum AsyncAction { }
+    public enum InnerAction {
+        case fetchUser(User)
+    }
+    
+    public enum AsyncAction {
+        case fetchUser
+    }
     public enum ScopeAction { }
     public enum DelegateAction { }
     
@@ -98,6 +106,9 @@ extension ProfileEditorFeature {
         _ action: View
     ) -> Effect<Action> {
         switch action {
+        case .onAppear:
+            return .send(.async(.fetchUser))
+            
         case .backButtonTapped:
             return .none
             
@@ -120,7 +131,12 @@ extension ProfileEditorFeature {
         _ action: InnerAction
     ) -> Effect<Action> {
         switch action {
-            
+        case .fetchUser(let user):
+            state.nickname = user.name ?? ""
+            state.height = user.height.map(String.init) ?? ""
+            state.armLength = user.armSpan.map(String.init) ?? ""
+            state.sns = user.instagramUrl ?? ""
+            return .none
         }
     }
     
@@ -130,7 +146,11 @@ extension ProfileEditorFeature {
         _ action: AsyncAction
     ) -> Effect<Action> {
         switch action {
-            
+        case .fetchUser:
+            return .run { send in
+                let user = try await accountUseCase.fetchAccount()
+                await send(.inner(.fetchUser(user)))
+            }
         }
     }
     

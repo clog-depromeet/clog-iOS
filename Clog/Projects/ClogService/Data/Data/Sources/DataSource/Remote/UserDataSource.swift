@@ -17,6 +17,7 @@ public protocol UserDataSource {
     func me() async throws -> UserResponseDTO
     func name(_ request: UserNameRequestDTO) async throws
     func search(cursor: Double?, keyword: String) async throws -> (items: [SocialFriendResponseDTO]?, meta: BaseMetaResponseDTO?)
+    func edit(_ request: EditUserRequestDTO) async throws
 }
 
 public final class DefaultUserDataSource: UserDataSource {
@@ -67,6 +68,12 @@ public final class DefaultUserDataSource: UserDataSource {
         
         return (response.data?.contents, response.data?.meta)
     }
+    
+    public func edit(_ request: EditUserRequestDTO) async throws {
+        let _: BaseResponseDTO<EmptyResponseDTO> = try await provider.request(
+            UserTarget.edit(request)
+        )
+    }
 }
 
 enum UserTarget {
@@ -75,6 +82,7 @@ enum UserTarget {
     case me
     case name(UserNameRequestDTO)
     case search(cursor: Double?, keyword: String)
+    case edit(EditUserRequestDTO)
 }
 
 extension UserTarget: TargetType {
@@ -89,6 +97,7 @@ extension UserTarget: TargetType {
         case .me: "/me"
         case .name: "/name"
         case .search: "/search"
+        case .edit: ""
         }
     }
     
@@ -99,6 +108,7 @@ extension UserTarget: TargetType {
         case .me: .get
         case .name: .patch
         case .search: .get
+        case .edit: .patch
         }
     }
     
@@ -123,6 +133,8 @@ extension UserTarget: TargetType {
                 parameters: parameters.compactMapValues { $0 },
                 encoding: URLEncoding.default
             )
+        case .edit(let request):
+            return .requestJSONEncodable(request)
         }
     }
     

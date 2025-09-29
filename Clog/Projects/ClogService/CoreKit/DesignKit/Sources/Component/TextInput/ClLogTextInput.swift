@@ -22,17 +22,18 @@ public struct ClLogTextInput: View {
         placeHolder: String,
         keyboardType: UIKeyboardType = .default,
         text: Binding<String>,
-        isFocused: Binding<Bool>
+        isFocused: Binding<Bool>,
+        configuration: TextInputConfiguration = TextInputConfiguration(
+            state: .normal,
+            type: .filed,
+            background: .gray900
+        )
     ) {
         self.placeHolder = placeHolder
         self.keyboardType = keyboardType
         self._isFocused = isFocused
         self._text = text
-        self.configuration = TextInputConfiguration(
-            state: .normal,
-            type: .filed,
-            background: .gray900
-        )
+        self.configuration = configuration
     }
     
     fileprivate init(

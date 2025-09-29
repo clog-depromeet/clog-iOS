@@ -22,4 +22,15 @@ public struct DefaultAccountRepository: AccountRepository {
     public func updateName(_ name: String) async throws {
         try await dataSource.name(UserNameRequestDTO(name: name))
     }
+    
+    public func editAccount(_ request: EditUserRequest) async throws {
+        let request = EditUserRequestDTO(
+            name: request.name,
+            height: request.height,
+            armSpan: request.armSpan,
+            instagramUrl: request.instagramUrl
+        )
+        
+        return try await dataSource.edit(request)
+    }
 }

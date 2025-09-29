@@ -627,36 +627,3 @@ extension RecordedFeature {
         }
     }
 }
-
-extension UIImage {
-    func resizedPNGData(targetSizeInBytes: Int = 1_000_000) -> Data? {
-        guard var currentData = self.pngData() else { return nil }
-        
-        // 이미지의 해상도를 줄여서 targetSizeInBytes 미만이 될 때까지 반복
-        var currentImage = self
-        let scaleFactor: CGFloat = 0.9
-        
-        while currentData.count > targetSizeInBytes,
-              currentImage.size.width > 100, currentImage.size.height > 100 {
-            let newSize = CGSize(width: currentImage.size.width * scaleFactor,
-                                 height: currentImage.size.height * scaleFactor)
-            
-            UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-            currentImage.draw(in: CGRect(origin: .zero, size: newSize))
-            guard let resizedImage = UIGraphicsGetImageFromCurrentImageContext() else {
-                UIGraphicsEndImageContext()
-                break
-            }
-            UIGraphicsEndImageContext()
-            
-            currentImage = resizedImage
-            if let data = currentImage.pngData() {
-                currentData = data
-            } else {
-                break
-            }
-        }
-        
-        return currentData.count <= targetSizeInBytes ? currentData : nil
-    }
-}

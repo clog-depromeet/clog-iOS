@@ -14,6 +14,7 @@ import SettingFeature
 import FolderFeature
 import EditFeature
 import CompletionReportFeature
+import AddAttemptsFeatureInterface
 import Core
 import DesignKit
 
@@ -88,6 +89,15 @@ extension RouterFeature {
             state.toast = Toast(message: "기록을 삭제했습니다.", type: .success)
             return .none
             
+        // add attempts view
+        case let .path(.element(id: id, action: .addAttempts(.delegate(.dismissView)))):
+            state.path.pop(from: id)
+            return .none
+            
+        case let .path(.element(id: id, action: .addAttempts(.view(.didSavedAttempts)))):
+            state.path.pop(from: id)
+            return .none
+            
         // Setting
         case .path(.element(id: let id, action: .setting(.backButtonTapped))):
             state.path.pop(from: id)
@@ -129,6 +139,10 @@ extension RouterFeature {
             
         case let .mainAction(.routerAction(.pushToAttempt(attemptId))):
             state.path.append(.attempt(AttemptFeature.State(attemptId: attemptId)))
+            return .none
+            
+        case .mainAction(.routerAction(.pushToAddAttempts)):
+            state.path.append(.addAttempts(AddAttemptsFeature.State()))
             return .none
             
         case let .mainAction(.routerAction(.presentToEdit(url, stampTimeList))):
