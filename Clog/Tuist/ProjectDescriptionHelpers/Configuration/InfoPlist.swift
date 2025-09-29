@@ -45,6 +45,20 @@ public struct InfoPlist {
         "NSPhotoLibraryAddUsageDescription": "촬영한 동영상을 사진첩에 저장하려면 권한이 필요합니다.",
         "NSUserTrackingUsageDescription": "클로그 앱에서 사용자에게 맞춤 서비스를 제공하기 위해 추적 권한을 요청합니다",
         "NSLocationWhenInUseUsageDescription": "근처 암장 정보 검색을 위해 위치 정보 권한이 필요합니다.",
+        "NSAppTransportSecurity": [
+                "NSExceptionDomains": [
+                    "kakao.com": [
+                        "NSIncludesSubdomains": true,
+                        "NSTemporaryExceptionAllowsInsecureHTTPLoads": true,
+                        "NSTemporaryExceptionRequiresForwardSecrecy": false,
+                    ],
+                    "kakaocdn.net": [
+                        "NSIncludesSubdomains": true,
+                        "NSTemporaryExceptionAllowsInsecureHTTPLoads": true,
+                        "NSTemporaryExceptionRequiresForwardSecrecy": false,
+                    ]
+                ]
+            ],
     ]
     
     static func appInfoPlist(_ appConfiguration: AppConfiguration) -> [String: Plist.Value] {

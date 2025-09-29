@@ -13,8 +13,8 @@ let project = Project.configure(
     product: .staticFramework,
     dependencies: [
         .Features.AddAttempts.feature,
-        .Features.Social.feature,
         .Features.ProfileEditor.feature,
+        .Features.Social.feature,
         .Features.CompletionReport.feature,
         .Features.NickName.feature,
         .Features.Onboarding.feature,

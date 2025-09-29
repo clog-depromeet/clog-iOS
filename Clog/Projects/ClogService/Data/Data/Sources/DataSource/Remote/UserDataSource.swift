@@ -16,6 +16,7 @@ public protocol UserDataSource {
     func logout() async throws
     func me() async throws -> UserResponseDTO
     func name(_ request: UserNameRequestDTO) async throws
+    func search(cursor: Double?, keyword: String) async throws -> (items: [SocialFriendResponseDTO]?, meta: BaseMetaResponseDTO?)
     func edit(_ request: EditUserRequestDTO) async throws
 }
 
@@ -57,6 +58,17 @@ public final class DefaultUserDataSource: UserDataSource {
         )
     }
     
+    public func search(cursor: Double?, keyword: String) async throws -> (items: [SocialFriendResponseDTO]?, meta: BaseMetaResponseDTO?) {
+        let response: BaseResponseDTO<BaseContentsResponse<[SocialFriendResponseDTO], BaseMetaResponseDTO>> = try await provider.request(
+            .search(
+                cursor: cursor,
+                keyword: keyword
+            )
+        )
+        
+        return (response.data?.contents, response.data?.meta)
+    }
+    
     public func edit(_ request: EditUserRequestDTO) async throws {
         let _: BaseResponseDTO<EmptyResponseDTO> = try await provider.request(
             UserTarget.edit(request)
@@ -69,6 +81,7 @@ enum UserTarget {
     case logout
     case me
     case name(UserNameRequestDTO)
+    case search(cursor: Double?, keyword: String)
     case edit(EditUserRequestDTO)
 }
 
@@ -83,6 +96,7 @@ extension UserTarget: TargetType {
         case .logout: "/log-out"
         case .me: "/me"
         case .name: "/name"
+        case .search: "/search"
         case .edit: ""
         }
     }
@@ -93,6 +107,7 @@ extension UserTarget: TargetType {
         case .logout: .post
         case .me: .get
         case .name: .patch
+        case .search: .get
         case .edit: .patch
         }
     }
@@ -109,6 +124,15 @@ extension UserTarget: TargetType {
             return .requestPlain
         case .name(let request):
             return .requestJSONEncodable(request)
+        case .search(let cursor, let keyword):
+            let parameters: [String: Any?] = [
+                "cursor": cursor,
+                "keyword": keyword
+            ]
+            return .requestParameters(
+                parameters: parameters.compactMapValues { $0 },
+                encoding: URLEncoding.default
+            )
         case .edit(let request):
             return .requestJSONEncodable(request)
         }

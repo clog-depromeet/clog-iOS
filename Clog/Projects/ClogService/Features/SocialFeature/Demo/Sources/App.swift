@@ -1,12 +1,21 @@
 import SwiftUI
 
+import SocialFeature
+import ComposableArchitecture
+
 @main
-struct App: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+struct SocialApp: App {
     
     var body: some Scene {
         WindowGroup {
-            
+            SocialView(
+                store: .init(
+                    initialState: SocialFeature.State(),
+                    reducer: {
+                        SocialFeature()
+                    }
+                )
+            )
         }
     }
 }

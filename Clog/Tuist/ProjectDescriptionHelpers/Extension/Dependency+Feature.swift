@@ -10,8 +10,8 @@ import ProjectDescription
 public extension TargetDependency {
     struct Features {
         public struct AddAttempts {}
-        public struct Social {}
         public struct ProfileEditor {}
+        public struct Social {}
         public struct CompletionReport {}
         public struct NickName {}
         public struct Onboarding {}
@@ -234,8 +234,8 @@ public extension TargetDependency.Features.CompletionReport {
     )
 }
 
-public extension TargetDependency.Features.Social {
-    static let name = "Social"
+public extension TargetDependency.Features.ProfileEditor {
+    static let name = "ProfileEditor"
     
     static let feature = TargetDependency.Features.project(
         name: "\(name)Feature",
@@ -248,9 +248,8 @@ public extension TargetDependency.Features.Social {
     )
 }
 
-public extension TargetDependency.Features.ProfileEditor {
-    static let name = "ProfileEditor"
-    
+public extension TargetDependency.Features.Social {
+    static let name = "Social"
     static let feature = TargetDependency.Features.project(
         name: "\(name)Feature",
         service: .clog
