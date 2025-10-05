@@ -13,4 +13,16 @@ public struct EditUserRequest {
     public let height: Int
     public let armSpan: Int
     public let instagramUrl: String
+
+    public init(
+        name: String,
+        height: Int,
+        armSpan: Int,
+        instagramUrl: String
+    ) {
+        self.name = name
+        self.height = height
+        self.armSpan = armSpan
+        self.instagramUrl = instagramUrl
+    }
 }

@@ -50,6 +50,7 @@ public struct ProfileEditorFeature {
         case backButtonTapped
         case genderTapped(Gender)
         case focusOut
+        case saveButtonTapped
     }
     public enum InnerAction {
         case fetchUser(User)
@@ -57,6 +58,8 @@ public struct ProfileEditorFeature {
     
     public enum AsyncAction {
         case fetchUser
+        case saveAccount
+        case saveAccountResponse(Result<Void, Error>)
     }
     public enum ScopeAction { }
     public enum DelegateAction { }
@@ -122,6 +125,9 @@ extension ProfileEditorFeature {
             state.armLengthFocus = false
             state.snsFocus = false
             return .none
+            
+        case .saveButtonTapped:
+            return .send(.async(.saveAccount))
         }
     }
     
@@ -151,6 +157,29 @@ extension ProfileEditorFeature {
                 let user = try await accountUseCase.fetchAccount()
                 await send(.inner(.fetchUser(user)))
             }
+
+        case .saveAccount:
+            let request = EditUserRequest(
+                name: state.nickname,
+                height: Int(state.height) ?? 0,
+                armSpan: Int(state.armLength) ?? 0,
+                instagramUrl: state.sns
+            )
+            return .run { send in
+                do {
+                    try await accountUseCase.editAccount(request)
+                    await send(.async(.saveAccountResponse(.success(()))))
+                } catch {
+                    await send(.async(.saveAccountResponse(.failure(error))))
+                }
+            }
+
+        case .saveAccountResponse(.success):
+            return .send(.view(.backButtonTapped))
+
+        case .saveAccountResponse(.failure(let error)):
+            // TODO: 저장 실패 - 토스트 메시지 노출
+            return .none
         }
     }
     

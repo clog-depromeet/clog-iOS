@@ -124,7 +124,7 @@ extension ProfileEditorView {
     
     private var bottomButtonView: some View {
         GeneralButton("저장하기") {
-            
+            send(.saveButtonTapped)
         }
         .style(.normal)
         .disabled(false)
