@@ -34,24 +34,30 @@ extension ReportView {
         VStack(spacing: 0) {
             makeAppBar()
             Spacer(minLength: 10)
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 16) {
-                    makeInformation()
-                        .padding(.horizontal, 4)
-                    
-                    makeWorkoutDurationView()
-                    makeCompletionStatsView()
-                    if let mostAttemptedProblem = store.report.mostAttemptedProblem {
-                        makeChallengeView(mostAttemptedProblem)
+            
+            if let report = store.report {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        makeInformation(report: report)
+                            .padding(.horizontal, 4)
+                        
+                        makeWorkoutDurationView(report: report)
+                        makeCompletionStatsView(report: report)
+                        if let mostAttemptedProblem = report.mostAttemptedProblem {
+                            makeChallengeView(mostAttemptedProblem, userName: report.userName)
+                        }
+                        if let mostVisitCrag = report.mostVisitedCrag {
+                            makeFavoriteCragView(mostVisitCrag)
+                        }
+//                        makeSaveAndSharedButton()
+                        informationText()
+                            .padding(.bottom, 40)
                     }
-                    if let mostVisitCrag = store.report.mostVisitedCrag {
-                        makeFavoriteCragView(mostVisitCrag)
-                    }
-//                    makeSaveAndSharedButton()
-                    informationText()
-                        .padding(.bottom, 40)
+                    .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 16)
+            } else {
+                ProgressView()
+                    .frame(width: 60, height: 60)
             }
         }
     }
@@ -59,30 +65,46 @@ extension ReportView {
     private func makeAppBar() -> some View {
         VStack(spacing: 0) {
             AppBar {
-                Text("나의 클라이밍 리포트")
-                    .font(.h3)
-                    .foregroundStyle(Color.clogUI.gray10)
+                if !store.reportUser.isMe {
+                    Button {
+                        store.send(.backButtonTapped)
+                    } label: {
+                        Image.clogUI.back
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(Color.clogUI.white)
+                    }
+                }
+                Text(
+                    store.reportUser.isMe
+                        ? "나의 클라이밍 리포트"
+                        : (store.report.map { "\($0.userName)의 클라이밍 리포트" } ?? "")
+                )
+                .font(.h3)
+                .foregroundStyle(Color.clogUI.gray10)
             } rightContent: {
-                Button {
-                    store.send(.settingTapped)
-                } label: {
-                    Image.clogUI.setting
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(Color.clogUI.white)
+                if store.reportUser.isMe {
+                    Button {
+                        store.send(.settingTapped)
+                    } label: {
+                        Image.clogUI.setting
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(Color.clogUI.white)
+                    }
                 }
             }
         }
     }
     
-    private func makeInformation() -> some View {
+    private func makeInformation(report: Report) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 0) {
-                Text("\(store.report.userName)님,")
+                Text("\(report.userName)님,")
                     .font(.h1)
                     .foregroundStyle(Color.clogUI.primary)
                 Spacer(minLength: 4)
-                Text("최근 3개월동안 \(store.report.recentAttemptCount)일 클라이밍했어요")
+                Text("최근 3개월동안 \(report.recentAttemptCount)일 클라이밍했어요")
                     .font(.h5)
                     .foregroundStyle(Color.clogUI.primary)
                 Text("얼마나 열심히 도전했는지 확인해볼까요?")
@@ -93,13 +115,13 @@ extension ReportView {
         }
     }
     
-    private func makeWorkoutDurationView() -> some View {
+    private func makeWorkoutDurationView(report: Report) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
                 Text("총 운동 시간")
                     .font(.h5)
                     .foregroundStyle(Color.clogUI.gray400)
-                Text("\(store.report.totalExerciseTime.totalExerciseTimeMs.msToTimeString)")
+                Text("\(report.totalExerciseTime.totalExerciseTimeMs.msToTimeString)")
                     .font(.h1)
                     .foregroundStyle(Color.clogUI.white)
             }
@@ -117,7 +139,7 @@ extension ReportView {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    private func makeCompletionStatsView() -> some View {
+    private func makeCompletionStatsView(report: Report) -> some View {
         HStack {
             VStack(alignment: .center) {
                 Image.clogUI.reportProblem
@@ -127,15 +149,15 @@ extension ReportView {
                 Text("푼 문제")
                     .font(.h5)
                     .foregroundStyle(Color.clogUI.gray400)
-                Text("\(store.report.totalAttemptCount.successAttemptCount)")
+                Text("\(report.totalAttemptCount.successAttemptCount)")
                     .font(.h1)
                     .foregroundStyle(Color.clogUI.gray10)
             }
             .frame(maxWidth: .infinity)
-            
+
             DividerView(.vertical, color: Color.clogUI.gray600)
                 .frame(height: 80)
-            
+
             VStack(alignment: .center) {
                 Image.clogUI.reportAttempt
                     .resizable()
@@ -144,15 +166,15 @@ extension ReportView {
                 Text("시도 횟수")
                     .font(.h5)
                     .foregroundStyle(Color.clogUI.gray400)
-                Text("\(store.report.totalAttemptCount.totalAttemptCount)")
+                Text("\(report.totalAttemptCount.totalAttemptCount)")
                     .font(.h1)
                     .foregroundStyle(Color.clogUI.gray10)
             }
             .frame(maxWidth: .infinity)
-            
+
             DividerView(.vertical, color: Color.clogUI.gray600)
                 .frame(height: 80)
-            
+
             VStack(alignment: .center) {
                 Image.clogUI.reportPercent
                     .resizable()
@@ -161,7 +183,7 @@ extension ReportView {
                 Text("완등률")
                     .font(.h5)
                     .foregroundStyle(Color.clogUI.gray400)
-                Text("\(store.report.totalAttemptCount.completionRate)%")
+                Text("\(report.totalAttemptCount.completionRate)%")
                     .font(.h1)
                     .foregroundStyle(Color.clogUI.gray10)
             }
@@ -173,10 +195,13 @@ extension ReportView {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    private func makeChallengeView(_ mostAttemptedProblem: MostAttemptedProblem) -> some View {
+    private func makeChallengeView(
+        _ mostAttemptedProblem: MostAttemptedProblem,
+        userName: String
+    ) -> some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                Text("\(store.report.userName)님의 가장 뿌듯했던 도전")
+                Text("\(userName)님의 가장 뿌듯했던 도전")
                     .font(.h5)
                     .foregroundStyle(Color.clogUI.gray400)
                 

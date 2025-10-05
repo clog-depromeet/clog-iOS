@@ -16,7 +16,7 @@ public struct DefaultReportRepository: ReportRepository {
         self.dataSource = dataSource
     }
     
-    public func fetch() async throws -> Report {
-        try await dataSource.report().toDomain()
+    public func fetch(userId: String?) async throws -> Report {
+        try await dataSource.report(userId: userId).toDomain()
     }
 }

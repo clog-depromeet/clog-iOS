@@ -15,6 +15,9 @@ import FolderFeature
 import EditFeature
 import CompletionReportFeature
 import AddAttemptsFeatureInterface
+import ReportFeature
+import ReportDomain
+import SocialDomain
 import Core
 import DesignKit
 
@@ -121,6 +124,11 @@ extension RouterFeature {
             state.path.pop(from: id)
             return .none
             
+        // Report
+        case let .path(.element(id: id, action: .report(.backButtonTapped))):
+            state.path.pop(from: id)
+            return .none
+            
         default:
             return .none
         }
@@ -154,6 +162,17 @@ extension RouterFeature {
             guard let storyId else { return .none }
             state.path.append(.completionReport(CompletionReportFeature.State(storyId: storyId)))
             return .none
+            
+        case let .mainAction(.socialTabAction(.delegate(.navigateToReport(friend)))):
+            state.path.append(
+                .report(
+                    ReportFeature.State(
+                        reportUser: .init(userId: friend.id,userName: friend.nickName)
+                    )
+                )
+            )
+            return .none
+            
         default:
             return .none
         }

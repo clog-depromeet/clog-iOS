@@ -12,7 +12,7 @@ import Networker
 import Moya
 
 public protocol ReportDataSource {
-    func report() async throws -> ReportResponseDTO
+    func report(userId: String?) async throws -> ReportResponseDTO
 }
 
 public struct DefaultReportDataSource: ReportDataSource {
@@ -23,9 +23,9 @@ public struct DefaultReportDataSource: ReportDataSource {
         self.provider = MoyaProvider<ReportTarget>.authorized()
     }
     
-    public func report() async throws -> ReportResponseDTO {
+    public func report(userId: String?) async throws -> ReportResponseDTO {
         let response: BaseResponseDTO<ReportResponseDTO> = try await provider.request(
-            ReportTarget.report
+            ReportTarget.report(userId: userId)
         )
         
         guard let data = response.data else {
@@ -38,7 +38,7 @@ public struct DefaultReportDataSource: ReportDataSource {
 }
 
 enum ReportTarget {
-    case report
+    case report(userId: String?)
 }
 
 extension ReportTarget: TargetType {
@@ -47,7 +47,13 @@ extension ReportTarget: TargetType {
     }
     
     var path: String {
-        return ""
+        switch self {
+        case .report(let userId):
+            if let userId = userId {
+                return "/\(userId)"
+            }
+            return ""
+        }
     }
     
     var method: Moya.Method {

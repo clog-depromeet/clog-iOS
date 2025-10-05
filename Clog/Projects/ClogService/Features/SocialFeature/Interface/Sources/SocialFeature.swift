@@ -58,7 +58,9 @@ public struct SocialFeature {
     }
     
     public enum ScopeAction {}
-    public enum DelegateAction {}
+    public enum DelegateAction {
+        case navigateToReport(SocialFriend)
+    }
     
     private enum CancelID { case search }
     
@@ -77,6 +79,8 @@ public struct SocialFeature {
                 return viewCore(&state, action)
             case .async(let action):
                 return asyncCore(&state, action)
+            case .socialTabAction(.delegate(let delegateAction)):
+                return handleSocialTabDelegate(&state, delegateAction)
             case .socialTabAction:
                 return .none
             case .binding, .inner, .scope, .delegate:
@@ -227,5 +231,18 @@ extension SocialFeature {
     func delegateCore(
         _ state: inout State,
         _ action: DelegateAction
-    ) -> Effect<Action> { }
+    ) -> Effect<Action> {
+        return .none
+    }
+    
+    // MARK: - Social Tab Delegate
+    func handleSocialTabDelegate(
+        _ state: inout State,
+        _ action: SocialTabFeature.DelegateAction
+    ) -> Effect<Action> {
+        switch action {
+        case .navigateToReport(let friend):
+            return .send(.delegate(.navigateToReport(friend)))
+        }
+    }
 }
