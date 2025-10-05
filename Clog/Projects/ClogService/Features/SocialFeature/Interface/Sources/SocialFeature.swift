@@ -42,6 +42,7 @@ public struct SocialFeature {
     }
     
     public enum View {
+        case didTapEditProfileButton
         case didTapSearchButton
         case searchTextChanged(String)
         case didTapFollowButton(SocialFriend)
@@ -60,6 +61,7 @@ public struct SocialFeature {
     public enum ScopeAction {}
     public enum DelegateAction {
         case navigateToReport(SocialFriend)
+        case navigateToProfileEditor
     }
     
     private enum CancelID { case search }
@@ -125,6 +127,9 @@ extension SocialFeature {
         _ action: View
     ) -> Effect<Action> {
         switch action {
+        case .didTapEditProfileButton:
+            return .send(.delegate(.navigateToProfileEditor))
+
         case .didTapSearchButton:
             state.searchBottomSheet.show = true
             return .none

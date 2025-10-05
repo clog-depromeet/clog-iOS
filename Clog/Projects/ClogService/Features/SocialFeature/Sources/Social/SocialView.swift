@@ -87,7 +87,7 @@ extension SocialView {
                             Spacer()
                             
                             Button {
-                                
+                                send(.didTapEditProfileButton)
                             } label: {
                                 Image.clogUI.icn_edit
                                     .resizable()
