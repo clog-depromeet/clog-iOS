@@ -147,6 +147,7 @@ public struct SocialTabView: View {
     
     private func makeProfileMoreBottomSheet() -> some View {
         VStack(alignment: .leading) {
+            /* TODO: 프로필 공유 기능 > 기획 수정 후 추가 예정
             Button {
                 
             } label: {
@@ -157,7 +158,7 @@ public struct SocialTabView: View {
                     .padding(.vertical, 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            
+            */
             Button {
                 send(.unfollowFromBottomSheet)
             } label: {

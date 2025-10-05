@@ -109,10 +109,12 @@ extension SocialView {
                     }
                     .padding(.vertical, 6)
                 }
+                /* TODO: 프로필 공유 기능 > 기획 수정 후 추가 예정
                 HStack(spacing: 7) {
                     makeShareProfileBtn()
                     makeAddFriendBtn()
                 }
+                 */
             }
             .padding(16)
             .background(Color.clogUI.gray900)
