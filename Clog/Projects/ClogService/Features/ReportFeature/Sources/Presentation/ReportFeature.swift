@@ -14,15 +14,21 @@ import ReportDomain
 @Reducer
 public struct ReportFeature {
     @Dependency(\.reportFetcherUseCase) private var reportFetcherUseCase
-    
+
     @ObservableState
     public struct State: Equatable {
-        public var report: Report = Report.init()
-        public init() {}
+        public let reportUser: ReportUser
+        public var report: Report?
+
+        public init(reportUser: ReportUser, report: Report? = nil) {
+            self.reportUser = reportUser
+            self.report = report
+        }
     }
     
     public enum Action {
         case settingTapped
+        case backButtonTapped
         case onAppear
         case fetchReportSuccess(Report)
         case handleError(Error)
@@ -39,22 +45,23 @@ extension ReportFeature {
     func reducerCore(_ state: inout State, _ action: Action) -> Effect<Action> {
         switch action {
         case .onAppear:
-            return fetchReport()
+            return fetchReport(state: state)
         case .fetchReportSuccess(let report):
             state.report = report
             return .none
         case .handleError(let error):
             print(error)
             return .none
-        default:
+        case .backButtonTapped, .settingTapped:
             return .none
         }
     }
-    
-    func fetchReport() -> Effect<Action> {
-        .run { send in
+
+    func fetchReport(state: State) -> Effect<Action> {
+        let userId = state.reportUser.userId
+        return .run { send in
             do {
-                let report = try await reportFetcherUseCase.fetch()
+                let report = try await reportFetcherUseCase.fetch(userId: userId)
                 await send(.fetchReportSuccess(report))
             } catch {
                 await send(.handleError(error))

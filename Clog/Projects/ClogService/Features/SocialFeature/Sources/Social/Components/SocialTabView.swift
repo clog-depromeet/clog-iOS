@@ -104,6 +104,9 @@ public struct SocialTabView: View {
                             send(.moreButtonTapped(friend))
                         }
                     )
+                    .onTapGesture {
+                        send(.friendInfoTapped(friend))
+                    }
                 }
             }
             .background(Color.clogUI.gray800.ignoresSafeArea())

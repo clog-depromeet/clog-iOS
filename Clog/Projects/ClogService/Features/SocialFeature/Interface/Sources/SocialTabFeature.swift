@@ -43,6 +43,7 @@ public struct SocialTabFeature {
     public enum View {
         case onAppear
         case selectTab(SocialTabFeature.State.CurrentTab)
+        case friendInfoTapped(SocialFriend)
         case followButtonTapped(SocialFriend)
         case moreButtonTapped(SocialFriend)
         case unfollowFromBottomSheet
@@ -59,7 +60,9 @@ public struct SocialTabFeature {
         case updatedFollow(SocialFriend?)
     }
     public enum ScopeAction { }
-    public enum DelegateAction { }
+    public enum DelegateAction {
+        case navigateToReport(SocialFriend)
+    }
     
     public var body: some Reducer<State, Action> {
         
@@ -91,6 +94,8 @@ public struct SocialTabFeature {
         case .selectTab(let tab):
             state.selectedTab = tab
             return .none
+        case .friendInfoTapped(let user):
+            return .send(.delegate(.navigateToReport(user)))
         case .followButtonTapped(let user):
             return .run { send in
                 await send(.async(user.isFollowing ? .unfollowUser(user) : .followUser(user)))

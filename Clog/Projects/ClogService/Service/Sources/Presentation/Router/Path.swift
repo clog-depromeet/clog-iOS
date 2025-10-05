@@ -13,6 +13,7 @@ import SettingFeature
 import FolderFeature
 import CompletionReportFeature
 import AddAttemptsFeatureInterface
+import ReportFeature
 import Core
 
 @Reducer
@@ -23,4 +24,5 @@ public enum Path {
     case attempt(AttemptFeature)
     case addAttempts(AddAttemptsFeature)
     case completionReport(CompletionReportFeature)
+    case report(ReportFeature)
 }

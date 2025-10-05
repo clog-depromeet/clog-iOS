@@ -12,7 +12,7 @@ import Dependencies
 import Shared
 
 public protocol ReportFetcherUseCase {
-    func fetch() async throws -> Report
+    func fetch(userId: String?) async throws -> Report
 }
 
 public struct ReportFetcher: ReportFetcherUseCase {
@@ -22,14 +22,14 @@ public struct ReportFetcher: ReportFetcherUseCase {
         self.repository = repository
     }
     
-    public func fetch() async throws -> Report {
-        try await repository.fetch()
+    public func fetch(userId: String?) async throws -> Report {
+        try await repository.fetch(userId: userId)
     }
 }
 
 // MARK: - Mock
 public struct MockReportFetcher: ReportFetcherUseCase {
-    public func fetch() async throws -> Report {
+    public func fetch(userId: String?) async throws -> Report {
         return Report(
             userName: "",
             recentAttemptCount: 0,

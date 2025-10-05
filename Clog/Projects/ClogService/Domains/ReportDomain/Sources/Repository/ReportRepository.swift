@@ -9,5 +9,5 @@
 import Foundation
 
 public protocol ReportRepository {
-    func fetch() async throws -> Report
+    func fetch(userId: String?) async throws -> Report
 }

@@ -15,6 +15,7 @@ import FolderFeature
 import EditFeature
 import CompletionReportFeature
 import AddAttemptsFeature
+import ReportFeature
 import Core
 import DesignKit
 
@@ -53,6 +54,9 @@ public struct RouterView: View {
                     .navigationBarBackButtonHidden(true)
             case .completionReport(let store):
                 CompletionReportView(store: store)
+                    .navigationBarBackButtonHidden(true)
+            case .report(let store):
+                ReportView(store: store)
                     .navigationBarBackButtonHidden(true)
             }
         }

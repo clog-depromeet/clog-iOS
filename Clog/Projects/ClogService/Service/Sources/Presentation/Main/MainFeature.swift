@@ -71,7 +71,7 @@ public struct MainFeature {
             self.folderTabState = FolderTabFeature.State()
             self.folderState = FolderFeature.State()
             self.calendarMainState = CalendarMainFeature.State()
-            self.reportState = ReportFeature.State()
+            self.reportState = ReportFeature.State(reportUser: .me())
             self.socialState = SocialFeature.State()
         }
     }
