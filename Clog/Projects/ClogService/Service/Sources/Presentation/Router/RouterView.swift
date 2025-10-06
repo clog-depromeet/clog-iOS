@@ -16,6 +16,7 @@ import EditFeature
 import CompletionReportFeature
 import AddAttemptsFeature
 import ReportFeature
+import ProfileEditorFeature
 import Core
 import DesignKit
 
@@ -57,6 +58,9 @@ public struct RouterView: View {
                     .navigationBarBackButtonHidden(true)
             case .report(let store):
                 ReportView(store: store)
+                    .navigationBarBackButtonHidden(true)
+            case .profileEditor(let store):
+                ProfileEditorView(store: store)
                     .navigationBarBackButtonHidden(true)
             }
         }

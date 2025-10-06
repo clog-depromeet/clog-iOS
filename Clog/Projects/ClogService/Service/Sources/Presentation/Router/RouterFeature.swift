@@ -18,6 +18,7 @@ import AddAttemptsFeatureInterface
 import ReportFeature
 import ReportDomain
 import SocialDomain
+import ProfileEditorFeatureInterface
 import Core
 import DesignKit
 
@@ -129,6 +130,11 @@ extension RouterFeature {
             state.path.pop(from: id)
             return .none
             
+        // ProfileEditor
+        case let .path(.element(id: id, action: .profileEditor(.view(.backButtonTapped)))):
+            state.path.pop(from: id)
+            return .none
+            
         default:
             return .none
         }
@@ -171,6 +177,10 @@ extension RouterFeature {
                     )
                 )
             )
+            return .none
+            
+        case .mainAction(.socialTabAction(.delegate(.navigateToProfileEditor))):
+            state.path.append(.profileEditor(ProfileEditorFeature.State()))
             return .none
             
         default:

@@ -9,12 +9,15 @@
 import Foundation
 import ComposableArchitecture
 import SocialDomain
+import AccountDomain
 import Core
+import UIKit
 
 @Reducer
 public struct SocialFeature {
     @Dependency(\.socialFriendRepository) private var socialRepository
     @Dependency(\.searchSocialFriendRepository) private var searchRepository
+    @Dependency(\.accountUseCase) private var accountUseCase
     
     @ObservableState
     public struct State: Equatable {
@@ -22,6 +25,11 @@ public struct SocialFeature {
         public var socialTabState: SocialTabFeature.State = .init()
         public var searchBottomSheet = SearchBottomSheet()
         public var followerUsers = [SocialFriend]()
+        public var id: Int? = nil
+        public var name: String? = nil
+        public var height: Int? = nil
+        public var armLength: Int? = nil
+        public var sns: String? = nil
         public init() { }
         
         public struct SearchBottomSheet: Equatable {
@@ -42,14 +50,20 @@ public struct SocialFeature {
     }
     
     public enum View {
+        case onAppear
+        case didTapEditProfileButton
+        case didTapInstagramButton
         case didTapSearchButton
         case searchTextChanged(String)
         case didTapFollowButton(SocialFriend)
     }
     
-    public enum InnerAction { }
+    public enum InnerAction {
+        case fetchMyProfileResponse(User)
+    }
     
     public enum AsyncAction {
+        case fetchMyProfile
         case searchFriends(String)
         case searchFriendsResponse(Result<[SocialFriend], Error>)
         case followUser(SocialFriend)
@@ -60,6 +74,7 @@ public struct SocialFeature {
     public enum ScopeAction {}
     public enum DelegateAction {
         case navigateToReport(SocialFriend)
+        case navigateToProfileEditor
     }
     
     private enum CancelID { case search }
@@ -77,13 +92,15 @@ public struct SocialFeature {
             switch action {
             case .view(let action):
                 return viewCore(&state, action)
+            case .inner(let action):
+                return innerCore(&state, action)
             case .async(let action):
                 return asyncCore(&state, action)
             case .socialTabAction(.delegate(let delegateAction)):
                 return handleSocialTabDelegate(&state, delegateAction)
             case .socialTabAction:
                 return .none
-            case .binding, .inner, .scope, .delegate:
+            case .binding, .scope, .delegate:
                 return .none
             }
         }
@@ -125,12 +142,28 @@ extension SocialFeature {
         _ action: View
     ) -> Effect<Action> {
         switch action {
+        case .onAppear:
+            return .send(.async(.fetchMyProfile))
+            
+        case .didTapEditProfileButton:
+            return .send(.delegate(.navigateToProfileEditor))
+
+        case .didTapInstagramButton:
+            guard let urlString = state.sns,
+                  let url = URL(string: urlString) else {
+                return .none
+            }
+            return .run { _ in
+                await MainActor.run {
+                    UIApplication.shared.open(url)
+                }
+            }
+
         case .didTapSearchButton:
             state.searchBottomSheet.show = true
             return .none
             
         case let .searchTextChanged(keyword):
-            print(keyword)
             state.searchBottomSheet.searchText = keyword
             
             if keyword.isEmpty || keyword.count < 2 {
@@ -155,7 +188,17 @@ extension SocialFeature {
     func innerCore(
         _ state: inout State,
         _ action: InnerAction
-    ) -> Effect<Action> { }
+    ) -> Effect<Action> {
+        switch action {
+        case .fetchMyProfileResponse(let user):
+            state.id = user.id
+            state.name = user.name
+            state.height = user.height
+            state.armLength = user.armSpan
+            state.sns = user.instagramUrl
+            return .none
+        }
+    }
     
     // MARK: - Async Core
     func asyncCore(
@@ -163,6 +206,16 @@ extension SocialFeature {
         _ action: AsyncAction
     ) -> Effect<Action> {
         switch action {
+        case .fetchMyProfile:
+            return .run { send in
+                do {
+                    let user = try await accountUseCase.fetchAccount()
+                    await send(.inner(.fetchMyProfileResponse(user)))
+                } catch {
+                    // TODO: 에러 처리
+                }
+            }
+            
         case let .searchFriends(keyword):
             return .run { send in
                 do {
@@ -213,7 +266,7 @@ extension SocialFeature {
             } else {
                 state.socialTabState.followingUsers.removeAll { $0.id == user.id }
             }
-
+            
             return .none
             
         case .followResponse(.failure(let error)):
