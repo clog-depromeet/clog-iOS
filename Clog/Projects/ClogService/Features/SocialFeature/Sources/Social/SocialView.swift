@@ -46,6 +46,9 @@ extension SocialView {
         .bottomSheet(isPresented: $store.searchBottomSheet.show) {
             makeSearchUserBottomSheet()
         }
+        .onAppear {
+            send(.onAppear)
+        }
     }
     
     private func makeAppBar() -> some View {
@@ -73,16 +76,18 @@ extension SocialView {
                     
                     VStack(spacing: 5) {
                         HStack {
-                            Text("김클로그")
+                            Text(store.name ?? "")
                                 .font(.h4)
                                 .foregroundStyle(Color.clogUI.white)
                             
                             Spacer()
                                 .frame(width: 6)
                             
-                            Text("#1234")
-                                .font(.b1)
-                                .foregroundStyle(Color.clogUI.gray400)
+                            if let id = store.id {
+                                Text("#\(id)")
+                                    .font(.b1)
+                                    .foregroundStyle(Color.clogUI.gray400)
+                            }
                             
                             Spacer()
                             
@@ -98,11 +103,17 @@ extension SocialView {
                         
                         HStack(spacing: 5) {
                             
-                            makeHeightarmLengthLabel(type: .height, value: 163)
+                            if let height = store.height {
+                                makeHeightarmLengthLabel(type: .height, value: height)
+                            }
                             
-                            makeHeightarmLengthLabel(type: .armLength, value: 175)
+                            if let armSpan = store.armLength {
+                                makeHeightarmLengthLabel(type: .armLength, value: armSpan)
+                            }
                             
-                            Image.clogUI.icn_Instagramlogo
+                            if let instagramUrl = store.sns, !instagramUrl.isEmpty {
+                                Image.clogUI.icn_Instagramlogo
+                            }
                             
                             Spacer()
                         }
