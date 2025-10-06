@@ -11,6 +11,7 @@ import ComposableArchitecture
 import SocialDomain
 import AccountDomain
 import Core
+import UIKit
 
 @Reducer
 public struct SocialFeature {
@@ -51,6 +52,7 @@ public struct SocialFeature {
     public enum View {
         case onAppear
         case didTapEditProfileButton
+        case didTapInstagramButton
         case didTapSearchButton
         case searchTextChanged(String)
         case didTapFollowButton(SocialFriend)
@@ -145,7 +147,18 @@ extension SocialFeature {
             
         case .didTapEditProfileButton:
             return .send(.delegate(.navigateToProfileEditor))
-            
+
+        case .didTapInstagramButton:
+            guard let urlString = state.sns,
+                  let url = URL(string: urlString) else {
+                return .none
+            }
+            return .run { _ in
+                await MainActor.run {
+                    UIApplication.shared.open(url)
+                }
+            }
+
         case .didTapSearchButton:
             state.searchBottomSheet.show = true
             return .none

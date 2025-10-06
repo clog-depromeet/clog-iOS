@@ -112,7 +112,11 @@ extension SocialView {
                             }
                             
                             if let instagramUrl = store.sns, !instagramUrl.isEmpty {
-                                Image.clogUI.icn_Instagramlogo
+                                Button {
+                                    send(.didTapInstagramButton)
+                                } label: {
+                                    Image.clogUI.icn_Instagramlogo
+                                }
                             }
                             
                             Spacer()
