@@ -55,11 +55,13 @@ extension ProfileEditorView {
     
     private var contentView: some View {
         ScrollView(showsIndicators: false) {
-            profileImageView
+            /* TODO: 프로필 이미지 설정 - 스펙아웃
+             profileImageView
+             */
             VStack(spacing: 14) {
                 nicknameView
                 
-                HStack(spacing: 7) {
+                HStack(alignment: .top, spacing: 7) {
                     heightView
                     armLengthView
                 }
@@ -104,13 +106,20 @@ extension ProfileEditorView {
                 ClLogTextInput(
                     placeHolder: "닉네임을 입력해주세요",
                     text: $store.nickname,
-                    isFocused: $store.nicknameFocus
+                    isFocused: $store.nicknameFocus,
+                    configuration: TextInputConfiguration(
+                        state: store.nicknameError != nil ? .error : .normal,
+                        type: .filed,
+                        background: .gray900
+                    )
                 )
                 
                 HStack {
-                    Text(store.errorText)
-                        .font(.c1)
-                        .foregroundStyle(Color.clogUI.textFail)
+                    if let error = store.nicknameError {
+                        Text(error)
+                            .font(.c1)
+                            .foregroundStyle(Color.clogUI.fail)
+                    }
                     
                     Spacer()
                     
@@ -118,6 +127,7 @@ extension ProfileEditorView {
                         .font(.c1)
                         .foregroundStyle(Color.clogUI.gray500)
                 }
+                .padding(.top, 4)
             }
         }
     }
@@ -126,8 +136,8 @@ extension ProfileEditorView {
         GeneralButton("저장하기") {
             send(.saveButtonTapped)
         }
-        .style(.normal)
-        .disabled(false)
+        .style(store.canSave ? .normal : .error)
+        .disabled(!store.canSave)
         .padding(.bottom, 20)
     }
     
@@ -137,12 +147,26 @@ extension ProfileEditorView {
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
             
-            ClLogTextInput(
-                placeHolder: "cm",
-                keyboardType: .numberPad,
-                text: $store.height,
-                isFocused: $store.heightFocus
-            )
+            VStack(alignment: .leading, spacing: 4) {
+                ClLogTextInput(
+                    placeHolder: "cm",
+                    keyboardType: .numberPad,
+                    text: $store.height,
+                    isFocused: $store.heightFocus,
+                    configuration: TextInputConfiguration(
+                        state: store.heightError != nil ? .error : .normal,
+                        type: .filed,
+                        background: .gray900
+                    )
+                )
+                
+                if let error = store.heightError {
+                    Text(error)
+                        .font(.c1)
+                        .foregroundStyle(Color.clogUI.fail)
+                        .padding(.top, 4)
+                }
+            }
         }
     }
     
@@ -152,12 +176,26 @@ extension ProfileEditorView {
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
             
-            ClLogTextInput(
-                placeHolder: "cm",
-                keyboardType: .numberPad,
-                text: $store.armLength,
-                isFocused: $store.armLengthFocus
-            )
+            VStack(alignment: .leading, spacing: 4) {
+                ClLogTextInput(
+                    placeHolder: "cm",
+                    keyboardType: .numberPad,
+                    text: $store.armLength,
+                    isFocused: $store.armLengthFocus,
+                    configuration: TextInputConfiguration(
+                        state: store.armLengthError != nil ? .error : .normal,
+                        type: .filed,
+                        background: .gray900
+                    )
+                )
+                
+                if let error = store.armLengthError {
+                    Text(error)
+                        .font(.c1)
+                        .foregroundStyle(Color.clogUI.fail)
+                        .padding(.top, 4)
+                }
+            }
         }
     }
     
@@ -194,11 +232,26 @@ extension ProfileEditorView {
             Text("SNS")
                 .font(.h5)
                 .foregroundStyle(Color.clogUI.white)
-            ClLogTextInput(
-                placeHolder: "인스타그램 링크를 입력해주세요",
-                text: $store.sns,
-                isFocused: $store.snsFocus
-            )
+            
+            VStack(alignment: .leading, spacing: 4) {
+                ClLogTextInput(
+                    placeHolder: "인스타그램 링크를 입력해주세요",
+                    text: $store.sns,
+                    isFocused: $store.snsFocus,
+                    configuration: TextInputConfiguration(
+                        state: store.snsError != nil ? .error : .normal,
+                        type: .filed,
+                        background: .gray900
+                    )
+                )
+                
+                if let error = store.snsError {
+                    Text(error)
+                        .font(.c1)
+                        .foregroundStyle(Color.clogUI.fail)
+                        .padding(.top, 4)
+                }
+            }
         }
     }
 }
