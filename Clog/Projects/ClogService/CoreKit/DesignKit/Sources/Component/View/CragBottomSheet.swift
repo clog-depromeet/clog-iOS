@@ -8,7 +8,6 @@
 
 import SwiftUI
 import Combine
-import Shared
 
 public extension View {
     func showCragBottomSheet(
