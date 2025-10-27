@@ -27,7 +27,7 @@ public extension SettingsDictionary {
     
     func configureVersioning() -> SettingsDictionary {
         currentProjectVersion("1")
-            .marketingVersion("1.0.5")
+            .marketingVersion("1.0.6")
             .appleGenericVersioningSystem()
     }
     
