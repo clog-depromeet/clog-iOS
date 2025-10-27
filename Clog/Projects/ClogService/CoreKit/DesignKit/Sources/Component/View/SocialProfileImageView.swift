@@ -7,20 +7,25 @@
 //
 
 import SwiftUI
-import SocialDomain
 
 public struct SocialProfileImageView: View {
     
-    private let friend: SocialFriend
+    private let isClimbedWithin7Days: Bool
+    private let profileImageUrl: String?
     private let size: CGFloat
     
-    public init(friend: SocialFriend, size: CGFloat = 40) {
-        self.friend = friend
+    public init(
+        isClimbedWithin7Days: Bool,
+        profileImageUrl: String?,
+        size: CGFloat = 40
+    ) {
+        self.isClimbedWithin7Days = isClimbedWithin7Days
+        self.profileImageUrl = profileImageUrl
         self.size = size
     }
     
     public var body: some View {
-        AsyncImage(url: URL(string: friend.profileImageUrl ?? "")) { state in
+        AsyncImage(url: URL(string: profileImageUrl ?? "")) { state in
             switch state {
             case .empty:
                 baseProfileImage
@@ -38,7 +43,7 @@ public struct SocialProfileImageView: View {
             }
         }
         .overlay(
-            friend.isClimbedWithin7Days
+            isClimbedWithin7Days
             ? AnyView(Image.clogUI.status)
             : AnyView(Color.clear)
             , alignment: .topTrailing)

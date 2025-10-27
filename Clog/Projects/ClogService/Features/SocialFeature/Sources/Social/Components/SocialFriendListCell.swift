@@ -30,7 +30,10 @@ public struct SocialFriendListCell: View {
     public var body: some View {
         HStack(spacing: 0) {
             
-            SocialProfileImageView(friend: friend)
+            SocialProfileImageView(
+                isClimbedWithin7Days: friend.isClimbedWithin7Days,
+                profileImageUrl: friend.profileImageUrl
+            )
             
             Spacer()
                 .frame(width: 12)
