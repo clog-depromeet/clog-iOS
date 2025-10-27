@@ -8,7 +8,7 @@
 
 import CoreText
 import Foundation
-import SwiftUICore
+import SwiftUI
 
 import Swinject
 
