@@ -78,13 +78,24 @@ public struct ProfileEditorFeature {
         public var normalizedSns: String {
             guard !sns.isEmpty else { return "" }
             
-            // 이미 URL 형태면 그대로 반환
+            // 이미 URL 형태인 경우
             if sns.hasPrefix("https://") {
-                return sns
+                // 인스타그램 URL인지 검증
+                let urlPattern = "^https://(www\\.)?instagram\\.com/[A-Za-z0-9._]{1,30}/?$"
+                if sns.range(of: urlPattern, options: .regularExpression) != nil {
+                    return sns  // 유효한 인스타그램 URL
+                } else {
+                    return ""  // 인스타그램이 아닌 다른 URL은 무시
+                }
             }
             
             // 계정 이름만 있으면 URL로 변환
-            return "https://instagram.com/\(sns)"
+            let usernamePattern = "^[A-Za-z0-9._]{1,30}$"
+            if sns.range(of: usernamePattern, options: .regularExpression) != nil {
+                return "https://instagram.com/\(sns)"
+            }
+            
+            return ""  // 유효하지 않으면 빈 문자열
         }
         
         public var canSave: Bool {
