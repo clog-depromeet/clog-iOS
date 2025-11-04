@@ -66,7 +66,10 @@ extension ProfileEditorView {
                     armLengthView
                 }
                 
+                /*
+                 // API 대기중
                 genderView
+                 */
                 snsView
             }
         }

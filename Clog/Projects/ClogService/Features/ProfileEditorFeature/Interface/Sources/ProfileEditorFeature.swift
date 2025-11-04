@@ -40,6 +40,7 @@ public struct ProfileEditorFeature {
         
         // Validation
         public var isNicknameValid: Bool {
+            // 닉네임은 필수 필드
             guard !nickname.isEmpty, nickname.count <= 10 else { return false }
             
             // 공백없이 한글, 영문, 숫자만
@@ -48,19 +49,53 @@ public struct ProfileEditorFeature {
         }
         
         public var isHeightValid: Bool {
+            guard !height.isEmpty else { return true }
             guard let value = Int(height), value >= 1, value <= 199 else { return false }
             return true
         }
         
         public var isArmLengthValid: Bool {
+            guard !armLength.isEmpty else { return true }
             guard let value = Int(armLength), value >= 1, value <= 199 else { return false }
             return true
         }
         
         public var isSnsValid: Bool {
             guard !sns.isEmpty else { return true }
-            let pattern = "^https://(www\\.)?instagram\\.com/[A-Za-z0-9._]{1,30}/?$"
-            return sns.range(of: pattern, options: .regularExpression) != nil
+            
+            // URL 형태인 경우
+            let urlPattern = "^https://(www\\.)?instagram\\.com/[A-Za-z0-9._]{1,30}/?$"
+            if sns.range(of: urlPattern, options: .regularExpression) != nil {
+                return true
+            }
+            
+            // 계정 이름만 있는 경우 (특수문자 . _ 포함 가능)
+            let usernamePattern = "^[A-Za-z0-9._]{1,30}$"
+            return sns.range(of: usernamePattern, options: .regularExpression) != nil
+        }
+        
+        // SNS를 저장용 URL로 변환
+        public var normalizedSns: String {
+            guard !sns.isEmpty else { return "" }
+            
+            // 이미 URL 형태인 경우
+            if sns.hasPrefix("https://") {
+                // 인스타그램 URL인지 검증
+                let urlPattern = "^https://(www\\.)?instagram\\.com/[A-Za-z0-9._]{1,30}/?$"
+                if sns.range(of: urlPattern, options: .regularExpression) != nil {
+                    return sns  // 유효한 인스타그램 URL
+                } else {
+                    return ""  // 인스타그램이 아닌 다른 URL은 무시
+                }
+            }
+            
+            // 계정 이름만 있으면 URL로 변환
+            let usernamePattern = "^[A-Za-z0-9._]{1,30}$"
+            if sns.range(of: usernamePattern, options: .regularExpression) != nil {
+                return "https://instagram.com/\(sns)"
+            }
+            
+            return ""  // 유효하지 않으면 빈 문자열
         }
         
         public var canSave: Bool {
@@ -98,7 +133,9 @@ public struct ProfileEditorFeature {
         case saveAccountResponse(Result<Void, Error>)
     }
     public enum ScopeAction { }
-    public enum DelegateAction { }
+    public enum DelegateAction {
+        case savedSuccessfully
+    }
     
     public enum Gender: Equatable {
         case male
@@ -164,7 +201,7 @@ extension ProfileEditorFeature {
             
         case .validateNickname:
             if state.nickname.isEmpty {
-                state.nicknameError = nil
+                state.nicknameError = "닉네임을 입력해주세요."
             } else if state.nickname.count > 10 {
                 state.nicknameError = "닉네임은 10자까지 입력할 수 있어요."
             } else if !state.isNicknameValid {
@@ -198,7 +235,7 @@ extension ProfileEditorFeature {
             if state.sns.isEmpty {
                 state.snsError = nil
             } else if !state.isSnsValid {
-                state.snsError = "올바른 인스타그램 링크를 입력해주세요."
+                state.snsError = "올바른 인스타그램 계정 또는 링크를 입력해주세요."
             } else {
                 state.snsError = nil
             }
@@ -242,7 +279,7 @@ extension ProfileEditorFeature {
                 name: state.nickname,
                 height: Int(state.height) ?? 0,
                 armSpan: Int(state.armLength) ?? 0,
-                instagramUrl: state.sns
+                instagramUrl: state.normalizedSns
             )
             return .run { send in
                 do {
@@ -254,7 +291,7 @@ extension ProfileEditorFeature {
             }
             
         case .saveAccountResponse(.success):
-            return .send(.view(.backButtonTapped))
+            return .send(.delegate(.savedSuccessfully))
             
         case .saveAccountResponse(.failure(let error)):
             // TODO: 저장 실패 - 토스트 메시지 노출
@@ -278,7 +315,8 @@ extension ProfileEditorFeature {
         _ action: DelegateAction
     ) -> Effect<Action> {
         switch action {
-            
+        case .savedSuccessfully:
+            return .none
         }
     }
     
