@@ -40,8 +40,8 @@ public struct ProfileEditorFeature {
         
         // Validation
         public var isNicknameValid: Bool {
-            guard !nickname.isEmpty else { return true }
-            guard nickname.count <= 10 else { return false }
+            // 닉네임은 필수 필드
+            guard !nickname.isEmpty, nickname.count <= 10 else { return false }
             
             // 공백없이 한글, 영문, 숫자만
             let pattern = "^[ㄱ-ㅎㅏ-ㅣ가-힣A-Za-z0-9\\p{P}\\p{S}]+$"
@@ -190,7 +190,7 @@ extension ProfileEditorFeature {
             
         case .validateNickname:
             if state.nickname.isEmpty {
-                state.nicknameError = nil
+                state.nicknameError = "닉네임을 입력해주세요."
             } else if state.nickname.count > 10 {
                 state.nicknameError = "닉네임은 10자까지 입력할 수 있어요."
             } else if !state.isNicknameValid {

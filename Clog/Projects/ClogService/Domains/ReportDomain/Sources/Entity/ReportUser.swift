@@ -24,7 +24,6 @@ public struct ReportUser: Equatable {
     
     /// 내 리포트인지 확인
     public var isMe: Bool {
-        guard let userId, userId.isEmpty else { return false }
-        return true
+        return userId == nil
     }
 }
