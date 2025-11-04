@@ -251,20 +251,20 @@ extension AddAttemptsFeature {
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         let time = CMTime(seconds: 1, preferredTimescale: 600)
-
+        
         guard let cgImage = try? generator.copyCGImage(at: time, actualTime: nil) else {
             return nil
         }
-
+        
         let uiImage = UIImage(cgImage: cgImage)
         guard let data = uiImage.jpegData(compressionQuality: 0.8) else {
             return nil
         }
-
+        
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("jpg")
-
+        
         do {
             try data.write(to: tempURL)
             return tempURL
@@ -350,16 +350,17 @@ extension AddAttemptsFeature {
                         }
                         return result
                     }
-
-                    let videos: [VideoRequest] = selectedVideos.map { video in
-                        VideoRequest(
-                            localPath: video.id,
+                    
+                    let videos: [VideoRequest] = selectedVideos.compactMap { video in
+                        guard let phAssetId = video.phAssetId else { return nil }
+                        return VideoRequest(
+                            localPath: phAssetId,
                             thumbnailUrl: uploadedMap[video.id],
                             durationMs: Int(video.duration),
                             stamps: []
                         )
                     }
-
+                    
                     let finalProblem = AddProblems(
                         date: problems.date,
                         cragId: problems.cragId,
