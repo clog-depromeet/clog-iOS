@@ -59,8 +59,29 @@ public struct ProfileEditorFeature {
         
         public var isSnsValid: Bool {
             guard !sns.isEmpty else { return true }
-            let pattern = "^https://(www\\.)?instagram\\.com/[A-Za-z0-9._]{1,30}/?$"
-            return sns.range(of: pattern, options: .regularExpression) != nil
+            
+            // URL 형태인 경우
+            let urlPattern = "^https://(www\\.)?instagram\\.com/[A-Za-z0-9._]{1,30}/?$"
+            if sns.range(of: urlPattern, options: .regularExpression) != nil {
+                return true
+            }
+            
+            // 계정 이름만 있는 경우 (특수문자 . _ 포함 가능)
+            let usernamePattern = "^[A-Za-z0-9._]{1,30}$"
+            return sns.range(of: usernamePattern, options: .regularExpression) != nil
+        }
+        
+        // SNS를 저장용 URL로 변환
+        public var normalizedSns: String {
+            guard !sns.isEmpty else { return "" }
+            
+            // 이미 URL 형태면 그대로 반환
+            if sns.hasPrefix("https://") {
+                return sns
+            }
+            
+            // 계정 이름만 있으면 URL로 변환
+            return "https://instagram.com/\(sns)"
         }
         
         public var canSave: Bool {
@@ -198,7 +219,7 @@ extension ProfileEditorFeature {
             if state.sns.isEmpty {
                 state.snsError = nil
             } else if !state.isSnsValid {
-                state.snsError = "올바른 인스타그램 링크를 입력해주세요."
+                state.snsError = "올바른 인스타그램 계정 또는 링크를 입력해주세요."
             } else {
                 state.snsError = nil
             }
@@ -242,7 +263,7 @@ extension ProfileEditorFeature {
                 name: state.nickname,
                 height: Int(state.height) ?? 0,
                 armSpan: Int(state.armLength) ?? 0,
-                instagramUrl: state.sns
+                instagramUrl: state.normalizedSns
             )
             return .run { send in
                 do {
