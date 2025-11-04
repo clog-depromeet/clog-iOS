@@ -40,7 +40,8 @@ public struct ProfileEditorFeature {
         
         // Validation
         public var isNicknameValid: Bool {
-            guard !nickname.isEmpty, nickname.count <= 10 else { return false }
+            guard !nickname.isEmpty else { return true }
+            guard nickname.count <= 10 else { return false }
             
             // 공백없이 한글, 영문, 숫자만
             let pattern = "^[ㄱ-ㅎㅏ-ㅣ가-힣A-Za-z0-9\\p{P}\\p{S}]+$"
@@ -48,11 +49,13 @@ public struct ProfileEditorFeature {
         }
         
         public var isHeightValid: Bool {
+            guard !height.isEmpty else { return true }
             guard let value = Int(height), value >= 1, value <= 199 else { return false }
             return true
         }
         
         public var isArmLengthValid: Bool {
+            guard !armLength.isEmpty else { return true }
             guard let value = Int(armLength), value >= 1, value <= 199 else { return false }
             return true
         }
@@ -119,7 +122,9 @@ public struct ProfileEditorFeature {
         case saveAccountResponse(Result<Void, Error>)
     }
     public enum ScopeAction { }
-    public enum DelegateAction { }
+    public enum DelegateAction {
+        case savedSuccessfully
+    }
     
     public enum Gender: Equatable {
         case male
@@ -275,7 +280,7 @@ extension ProfileEditorFeature {
             }
             
         case .saveAccountResponse(.success):
-            return .send(.view(.backButtonTapped))
+            return .send(.delegate(.savedSuccessfully))
             
         case .saveAccountResponse(.failure(let error)):
             // TODO: 저장 실패 - 토스트 메시지 노출
@@ -299,7 +304,8 @@ extension ProfileEditorFeature {
         _ action: DelegateAction
     ) -> Effect<Action> {
         switch action {
-            
+        case .savedSuccessfully:
+            return .none
         }
     }
     
