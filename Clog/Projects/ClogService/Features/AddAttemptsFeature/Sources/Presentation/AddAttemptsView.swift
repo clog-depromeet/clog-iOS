@@ -71,15 +71,13 @@ public struct AddAttemptsView: View {
 
 private extension AddAttemptsView {
     private func makeBodyView() -> some View {
-        
-        let contentView = GeometryReader { geometry in
-            VStack(spacing: 0) {
-                
-                makeAppBar()
-                
-                Spacer().frame(height: 20)
-                
-                ScrollView {
+        VStack(spacing: 0) {
+            makeAppBar()
+            
+            Spacer().frame(height: 20)
+            
+            ScrollView {
+                VStack(spacing: 0) {
                     selectedCragNameView()
                     
                     Spacer().frame(height: 20)
@@ -93,19 +91,17 @@ private extension AddAttemptsView {
                     Spacer().frame(height: 12)
                     
                     makeMemoTextEditorView()
+                    
+                    Spacer().frame(height: 80)
                 }
-                .frame(minHeight: geometry.size.height)
                 .padding(.horizontal, 16)
             }
-            .frame(width: geometry.size.width)
-            
-        }
-        
-        return ZStack(alignment: .bottom) {
-            contentView
+            .scrollDismissesKeyboard(.interactively)
             
             makeSaveButton()
                 .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+                .background(Color.clogUI.gray900)
         }
     }
     

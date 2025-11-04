@@ -135,6 +135,11 @@ extension RouterFeature {
             state.path.pop(from: id)
             return .none
             
+        case let .path(.element(id: id, action: .profileEditor(.delegate(.savedSuccessfully)))):
+            state.path.pop(from: id)
+            state.toast = Toast(message: "프로필을 저장했습니다.", type: .success)
+            return .none
+            
         default:
             return .none
         }

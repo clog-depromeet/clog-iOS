@@ -196,7 +196,7 @@ extension SocialTabFeature.State.CurrentTab {
     var emptyDescription: String {
         switch self {
         case .follower:
-            return "아직 나를 팔로우한 친구가 없어요.\n지금 프로필을 공유하고, 나를 팔로우할 친구를 만나보세요!"
+            return "아직 나를 팔로우한 친구가 없어요."
         case .following:
             return "관심 있는 친구를 팔로우하면\n더 다양한 활동을 볼 수 있어요."
         }
