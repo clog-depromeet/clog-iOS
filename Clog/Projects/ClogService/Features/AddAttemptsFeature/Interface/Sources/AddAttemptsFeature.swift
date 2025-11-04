@@ -356,7 +356,7 @@ extension AddAttemptsFeature {
                         return VideoRequest(
                             localPath: phAssetId,
                             thumbnailUrl: uploadedMap[video.id],
-                            durationMs: Int(video.duration),
+                            durationMs: Int(video.duration * 1000),
                             stamps: []
                         )
                     }
